@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 1.4.3
-Release  : 2
+Release  : 3
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.4.3.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.4.3.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -14,7 +14,7 @@ Requires: virt-manager-bin
 Requires: virt-manager-data
 Requires: virt-manager-locales
 Requires: virt-manager-doc
-Requires: ipadd-python
+Requires: ipaddr-python
 Requires: libvirt-python
 BuildRequires : glib-bin
 BuildRequires : intltool
@@ -76,7 +76,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1512149721
+export SOURCE_DATE_EPOCH=1512154060
 python2 setup.py build -b py2
 
 %install
