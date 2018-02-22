@@ -1,0 +1,45 @@
+From b42e37be1fec81e10e2507a796575b19c16ba364 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 6 Feb 2018 18:57:00 -0500
+Subject: [PATCH 20/45] Fix last bits of python3 pylint
+
+---
+ virtManager/keyring.py      | 2 +-
+ virtManager/module_trace.py | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/virtManager/keyring.py b/virtManager/keyring.py
+index a90d2f6e..c3496bd9 100644
+--- a/virtManager/keyring.py
++++ b/virtManager/keyring.py
+@@ -110,7 +110,7 @@ class vmmKeyring(object):
+             label = iface.get_cached_property("Label").unpack().strip("'")
+             dbusattrs = iface.get_cached_property("Attributes").unpack()
+ 
+-            secret = u"".join([unichr(c) for c in secretbytes])
++            secret = u"".join([chr(c) for c in secretbytes])
+ 
+             attrs = {}
+             for key, val in dbusattrs.items():
+diff --git a/virtManager/module_trace.py b/virtManager/module_trace.py
+index ff76504f..ba8df8c3 100644
+--- a/virtManager/module_trace.py
++++ b/virtManager/module_trace.py
+@@ -29,7 +29,6 @@ import time
+ import traceback
+ 
+ from types import FunctionType
+-from types import ClassType
+ from types import MethodType
+ 
+ 
+@@ -94,5 +93,5 @@ def wrap_module(module, regex=None):
+         obj = getattr(module, name)
+         if isinstance(obj, FunctionType):
+             wrap_func(module, obj)
+-        if isinstance(obj, (ClassType, type)):
++        if isinstance(obj, type):
+             wrap_class(obj)
+-- 
+2.16.2
+

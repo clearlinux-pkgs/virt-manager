@@ -1,0 +1,27 @@
+From 1302156265c9b340b48ea2c99b6079c7c92e8d76 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Fri, 16 Feb 2018 12:37:42 -0500
+Subject: [PATCH 39/45] setup: Add explicit error if running with python2
+
+---
+ setup.py | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/setup.py b/setup.py
+index 85d7f6e8..63d22914 100755
+--- a/setup.py
++++ b/setup.py
+@@ -22,6 +22,10 @@ from virtcli import CLIConfig
+ sysprefix = distutils.sysconfig.get_config_var("prefix")
+ 
+ 
++if sys.version_info.major < 3:
++    print("virt-manager is python3 only. Run this as ./setup.py")
++    sys.exit(1)
++
+ # pylint: disable=attribute-defined-outside-init
+ 
+ _desktop_files = [
+-- 
+2.16.2
+

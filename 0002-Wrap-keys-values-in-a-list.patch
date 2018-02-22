@@ -1,0 +1,577 @@
+From 978fb25ac775c1d917f08506dd0f341d17597366 Mon Sep 17 00:00:00 2001
+From: Radostin Stoyanov <rstoyanov1@gmail.com>
+Date: Wed, 11 Oct 2017 12:35:46 +0100
+Subject: [PATCH 02/45] Wrap keys(), values() in a list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In Python 3 dict.values() [1] , dict.keys() [2] and dict.items() [3]
+return a view [4] of the dictionary’s values, keys and items.
+
+In Python 2 these functions return a list. [5] [6] [7]
+
+To resolve this we can convert the result of these function to a list.
+
+[1] https://docs.python.org/3/library/stdtypes.html#dict.values
+[2] https://docs.python.org/3/library/stdtypes.html#dict.keys
+[3] https://docs.python.org/3/library/stdtypes.html#dict.items
+[4] https://docs.python.org/3/library/stdtypes.html#dict-views
+[5] https://docs.python.org/2/library/stdtypes.html#dict.items
+[6] https://docs.python.org/2/library/stdtypes.html#dict.keys
+[7] https://docs.python.org/2/library/stdtypes.html#dict.values
+---
+ tests/nodedev.py               |  2 +-
+ tests/test_urls.py             |  2 +-
+ virtManager/addstorage.py      |  2 +-
+ virtManager/clone.py           |  6 +++---
+ virtManager/connection.py      | 10 +++++-----
+ virtManager/create.py          |  2 +-
+ virtManager/createinterface.py |  4 ++--
+ virtManager/details.py         |  6 ++++--
+ virtManager/engine.py          | 14 +++++++-------
+ virtManager/migrate.py         |  2 +-
+ virtManager/netlist.py         |  2 +-
+ virtManager/snapshots.py       |  2 +-
+ virtManager/systray.py         |  6 +++---
+ virtinst/cli.py                |  4 ++--
+ virtinst/devicegraphics.py     |  2 +-
+ virtinst/domcapabilities.py    |  2 +-
+ virtinst/guest.py              |  2 +-
+ virtinst/hostkeymap.py         |  2 +-
+ virtinst/osdict.py             |  4 ++--
+ virtinst/pollhelpers.py        |  8 ++++----
+ virtinst/storage.py            |  2 +-
+ virtinst/support.py            |  2 +-
+ virtinst/urlfetcher.py         |  2 +-
+ virtinst/xmlbuilder.py         | 14 +++++++-------
+ 24 files changed, 53 insertions(+), 51 deletions(-)
+
+diff --git a/tests/nodedev.py b/tests/nodedev.py
+index 613e671f..cf661598 100644
+--- a/tests/nodedev.py
++++ b/tests/nodedev.py
+@@ -69,7 +69,7 @@ class TestNodeDev(unittest.TestCase):
+ 
+     def _testCompare(self, devname, vals, devxml=None):
+         def _compare(dev, vals, root=""):
+-            for attr in vals.keys():
++            for attr in list(vals.keys()):
+                 expect = vals[attr]
+                 actual = getattr(dev, attr)
+                 if isinstance(expect, list):
+diff --git a/tests/test_urls.py b/tests/test_urls.py
+index a477f079..3f595a53 100644
+--- a/tests/test_urls.py
++++ b/tests/test_urls.py
+@@ -253,7 +253,7 @@ def _make_tests():
+                        vals.get("testshortcircuit", "0") == "1")
+         urls[d.name] = d
+ 
+-    keys = urls.keys()
++    keys = list(urls.keys())
+     keys.sort()
+     for key in keys:
+         distroobj = urls[key]
+diff --git a/virtManager/addstorage.py b/virtManager/addstorage.py
+index c137e2b3..81223bf6 100644
+--- a/virtManager/addstorage.py
++++ b/virtManager/addstorage.py
+@@ -174,7 +174,7 @@ class vmmAddStorage(vmmGObjectUI):
+                              _("Don't ask about these directories again."))
+ 
+         if chkres:
+-            src.config.add_perms_fix_ignore(errors.keys())
++            src.config.add_perms_fix_ignore(list(errors.keys()))
+ 
+     def reset_state(self):
+         self._update_host_space()
+diff --git a/virtManager/clone.py b/virtManager/clone.py
+index baa4d2e6..02a860d0 100644
+--- a/virtManager/clone.py
++++ b/virtManager/clone.py
+@@ -336,7 +336,7 @@ class vmmCloneVM(vmmGObjectUI):
+ 
+             build_net_row(label, mac, newmac)
+ 
+-        no_net = bool(len(self.net_list.keys()) == 0)
++        no_net = (not list(self.net_list.keys()))
+         self.widget("clone-network-box").set_visible(not no_net)
+         self.widget("clone-no-net").set_visible(no_net)
+ 
+@@ -460,7 +460,7 @@ class vmmCloneVM(vmmGObjectUI):
+         if cd.clone_name == newname:
+             return
+ 
+-        for row in self.storage_list.values():
++        for row in list(self.storage_list.values()):
+             origpath = row[STORAGE_INFO_ORIG_PATH]
+             if row[STORAGE_INFO_MANUAL_PATH]:
+                 continue
+@@ -599,7 +599,7 @@ class vmmCloneVM(vmmGObjectUI):
+         # If any storage cannot be cloned or shared, don't allow cloning
+         clone = True
+         tooltip = ""
+-        for row in self.storage_list.values():
++        for row in list(self.storage_list.values()):
+             can_clone = row[STORAGE_INFO_CAN_CLONE]
+             can_share = row[STORAGE_INFO_CAN_SHARE]
+             if not (can_clone or can_share):
+diff --git a/virtManager/connection.py b/virtManager/connection.py
+index 0574ac50..f8fd39c9 100644
+--- a/virtManager/connection.py
++++ b/virtManager/connection.py
+@@ -1215,35 +1215,35 @@ class vmmConnection(vmmGObject):
+     def _update_nets(self, dopoll):
+         keymap = dict((o.get_connkey(), o) for o in self.list_nets())
+         if not dopoll or not self.is_network_capable():
+-            return [], [], keymap.values()
++            return [], [], list(keymap.values())
+         return pollhelpers.fetch_nets(self._backend, keymap,
+                     (lambda obj, key: vmmNetwork(self, obj, key)))
+ 
+     def _update_pools(self, dopoll):
+         keymap = dict((o.get_connkey(), o) for o in self.list_pools())
+         if not dopoll or not self.is_storage_capable():
+-            return [], [], keymap.values()
++            return [], [], list(keymap.values())
+         return pollhelpers.fetch_pools(self._backend, keymap,
+                     (lambda obj, key: vmmStoragePool(self, obj, key)))
+ 
+     def _update_interfaces(self, dopoll):
+         keymap = dict((o.get_connkey(), o) for o in self.list_interfaces())
+         if not dopoll or not self.is_interface_capable():
+-            return [], [], keymap.values()
++            return [], [], list(keymap.values())
+         return pollhelpers.fetch_interfaces(self._backend, keymap,
+                     (lambda obj, key: vmmInterface(self, obj, key)))
+ 
+     def _update_nodedevs(self, dopoll):
+         keymap = dict((o.get_connkey(), o) for o in self.list_nodedevs())
+         if not dopoll or not self.is_nodedev_capable():
+-            return [], [], keymap.values()
++            return [], [], list(keymap.values())
+         return pollhelpers.fetch_nodedevs(self._backend, keymap,
+                     (lambda obj, key: vmmNodeDevice(self, obj, key)))
+ 
+     def _update_vms(self, dopoll):
+         keymap = dict((o.get_connkey(), o) for o in self.list_vms())
+         if not dopoll:
+-            return [], [], keymap.values()
++            return [], [], list(keymap.values())
+         return pollhelpers.fetch_vms(self._backend, keymap,
+                     (lambda obj, key: vmmDomain(self, obj, key)))
+ 
+diff --git a/virtManager/create.py b/virtManager/create.py
+index d5d1d5a0..0a733093 100644
+--- a/virtManager/create.py
++++ b/virtManager/create.py
+@@ -932,7 +932,7 @@ class vmmCreate(vmmGObjectUI):
+         model.clear()
+ 
+         default = -1
+-        for c in self.engine.conns.values():
++        for c in list(self.engine.conns.values()):
+             connobj = c["conn"]
+             if not connobj.is_active():
+                 continue
+diff --git a/virtManager/createinterface.py b/virtManager/createinterface.py
+index fa2c6e79..d37dac92 100644
+--- a/virtManager/createinterface.py
++++ b/virtManager/createinterface.py
+@@ -556,12 +556,12 @@ class vmmCreateInterface(vmmGObjectUI):
+             row[INTERFACE_ROW_KEY] = key
+             row_dict[name] = row
+ 
+-        for row in row_dict.values():
++        for row in list(row_dict.values()):
+             name = row[INTERFACE_ROW_NAME]
+             row[INTERFACE_ROW_IN_USE_BY] = self.iface_in_use_by(self.conn,
+                                                                 name)
+ 
+-        for row in row_dict.values():
++        for row in list(row_dict.values()):
+             model.append(row)
+ 
+     def get_default_name(self):
+diff --git a/virtManager/details.py b/virtManager/details.py
+index ebe010b5..affdec38 100644
+--- a/virtManager/details.py
++++ b/virtManager/details.py
+@@ -744,7 +744,7 @@ class vmmDetails(vmmGObjectUI):
+         rmHW.connect("activate", self.remove_xml_dev)
+ 
+         self._addhwmenuitems = {"add": addHW, "remove": rmHW}
+-        for i in self._addhwmenuitems.values():
++        for i in list(self._addhwmenuitems.values()):
+             self.addhwmenu.add(i)
+ 
+         self.widget("hw-panel").set_show_tabs(False)
+@@ -1516,7 +1516,9 @@ class vmmDetails(vmmGObjectUI):
+             'tEXt::Generator Version': self.config.get_appversion(),
+         }
+ 
+-        ret = image.save_to_bufferv('png', metadata.keys(), metadata.values())
++        ret = image.save_to_bufferv(
++            'png', list(metadata.keys()), list(metadata.values())
++        )
+         # On Fedora 19, ret is (bool, str)
+         # Someday the bindings might be fixed to just return the str, try
+         # and future proof it a bit
+diff --git a/virtManager/engine.py b/virtManager/engine.py
+index 90ff97e9..c9b1851f 100644
+--- a/virtManager/engine.py
++++ b/virtManager/engine.py
+@@ -154,7 +154,7 @@ class vmmEngine(vmmGObject):
+         self._application.add_action(action)
+ 
+     def _default_startup(self, skip_autostart, cliuri):
+-        uris = self.conns.keys()
++        uris = list(self.conns.keys())
+         if not uris:
+             logging.debug("No stored URIs found.")
+         else:
+@@ -514,10 +514,10 @@ class vmmEngine(vmmGObject):
+         focus, and use that
+         """
+         windowlist = [self.windowManager]
+-        for conndict in self.conns.values():
+-            windowlist.extend(conndict["windowDetails"].values())
++        for conndict in list(self.conns.values()):
++            windowlist.extend(list(conndict["windowDetails"].values()))
+         windowlist.extend(
+-            [conndict["windowHost"] for conndict in self.conns.values()])
++            [conndict["windowHost"] for conndict in list(self.conns.values())])
+ 
+         use_win = None
+         for window in windowlist:
+@@ -593,7 +593,7 @@ class vmmEngine(vmmGObject):
+                 self.conns[uri]["windowClone"].cleanup()
+ 
+             details = self.conns[uri]["windowDetails"]
+-            for win in details.values():
++            for win in list(details.values()):
+                 win.cleanup()
+ 
+             self.conns[uri]["conn"].cleanup()
+@@ -613,7 +613,7 @@ class vmmEngine(vmmGObject):
+         handle_id = vmmGObject.connect(self, name, callback, *args)
+ 
+         if name == "conn-added":
+-            for conn_dict in self.conns.values():
++            for conn_dict in list(self.conns.values()):
+                 self.emit("conn-added", conn_dict["conn"])
+ 
+         return handle_id
+@@ -763,7 +763,7 @@ class vmmEngine(vmmGObject):
+             return self.connect_to_uri(uri, autoconnect, probe=True)
+ 
+         def cancelled(src):
+-            if len(self.conns.keys()) == 0:
++            if not list(self.conns.keys()):
+                 self.exit_app(src)
+ 
+         obj = vmmConnect()
+diff --git a/virtManager/migrate.py b/virtManager/migrate.py
+index 2b743b80..37b9d716 100644
+--- a/virtManager/migrate.py
++++ b/virtManager/migrate.py
+@@ -313,7 +313,7 @@ class vmmMigrateDialog(vmmGObjectUI):
+         model.clear()
+ 
+         rows = []
+-        for conn in self._conns.values():
++        for conn in list(self._conns.values()):
+             rows.append(self._build_dest_row(conn))
+ 
+         if not any([row[COL_CAN_MIGRATE] for row in rows]):
+diff --git a/virtManager/netlist.py b/virtManager/netlist.py
+index bd53af56..d550bcc6 100644
+--- a/virtManager/netlist.py
++++ b/virtManager/netlist.py
+@@ -197,7 +197,7 @@ class vmmNetworkList(vmmGObjectUI):
+             for slave in slave_names:
+                 netdevs.pop(slave, None)
+ 
+-        for name, is_bridge, slave_names in netdevs.values():
++        for name, is_bridge, slave_names in list(netdevs.values()):
+             if ((name in vnet_taps) or
+                 (name in [v + "-nic" for v in vnet_bridges]) or
+                 (name in skip_ifaces)):
+diff --git a/virtManager/snapshots.py b/virtManager/snapshots.py
+index 6d33d90e..3891f7d3 100644
+--- a/virtManager/snapshots.py
++++ b/virtManager/snapshots.py
+@@ -507,7 +507,7 @@ class vmmSnapshotPage(vmmGObjectUI):
+             basesn = os.path.join(cachedir, "snap-screenshot-%s" % name)
+ 
+             # Remove any pre-existing screenshots so we don't show stale data
+-            for ext in mimemap.values():
++            for ext in list(mimemap.values()):
+                 p = basesn + "." + ext
+                 if os.path.exists(basesn + "." + ext):
+                     os.unlink(p)
+diff --git a/virtManager/systray.py b/virtManager/systray.py
+index 9011038f..9a5139e0 100644
+--- a/virtManager/systray.py
++++ b/virtManager/systray.py
+@@ -199,13 +199,13 @@ class vmmSystray(vmmGObject):
+ 
+     def repopulate_menu_list(self):
+         # Build sorted connection list
+-        connsort = self.conn_menuitems.keys()
++        connsort = list(self.conn_menuitems.keys())
+         connsort.sort()
+         connsort.reverse()
+ 
+         # Empty conn list
+         for child in self.systray_menu.get_children():
+-            if child in self.conn_menuitems.values():
++            if child in list(self.conn_menuitems.values()):
+                 self.systray_menu.remove(child)
+ 
+         # Build sorted conn list
+@@ -265,7 +265,7 @@ class vmmSystray(vmmGObject):
+         for vm in conn.list_vms():
+             vm_mappings[vm.get_name()] = vm.get_connkey()
+ 
+-        vm_names = vm_mappings.keys()
++        vm_names = list(vm_mappings.keys())
+         vm_names.sort()
+ 
+         if len(vm_names) == 0:
+diff --git a/virtinst/cli.py b/virtinst/cli.py
+index 3d3ac0ac..111dfb61 100644
+--- a/virtinst/cli.py
++++ b/virtinst/cli.py
+@@ -1193,7 +1193,7 @@ class VirtCLIParser(object):
+         passed an invalid argument such as --disk idontexist=foo
+         """
+         if optdict:
+-            fail(_("Unknown options %s") % optdict.keys())
++            fail(_("Unknown options %s") % list(optdict.keys()))
+ 
+     def _parse(self, inst):
+         """
+@@ -1681,7 +1681,7 @@ class ParserBoot(VirtCLIParser):
+     def _parse(self, inst):
+         # Build boot order
+         boot_order = []
+-        for cliname in self.optdict.keys():
++        for cliname in list(self.optdict.keys()):
+             if cliname not in inst.os.BOOT_DEVICES:
+                 continue
+ 
+diff --git a/virtinst/devicegraphics.py b/virtinst/devicegraphics.py
+index ffba36d9..44e0a8a8 100644
+--- a/virtinst/devicegraphics.py
++++ b/virtinst/devicegraphics.py
+@@ -84,7 +84,7 @@ class VirtualGraphics(VirtualDevice):
+         """
+         from . import hostkeymap
+ 
+-        orig_list = hostkeymap.keytable.values()
++        orig_list = list(hostkeymap.keytable.values())
+         sort_list = []
+ 
+         orig_list.sort()
+diff --git a/virtinst/domcapabilities.py b/virtinst/domcapabilities.py
+index be2281a6..85ccaa38 100644
+--- a/virtinst/domcapabilities.py
++++ b/virtinst/domcapabilities.py
+@@ -151,7 +151,7 @@ class DomainCapabilities(XMLBuilder):
+         """
+         Return True if we know how to setup UEFI for the passed arch
+         """
+-        return self.arch in self._uefi_arch_patterns.keys()
++        return self.arch in list(self._uefi_arch_patterns.keys())
+ 
+     def supports_uefi_xml(self):
+         """
+diff --git a/virtinst/guest.py b/virtinst/guest.py
+index 32acd521..55d79b74 100644
+--- a/virtinst/guest.py
++++ b/virtinst/guest.py
+@@ -1046,7 +1046,7 @@ class Guest(XMLBuilder):
+                                  (str(d), str(addresses[addrstr][addr.function])))
+             addresses[addrstr][addr.function] = d
+ 
+-        for devs in addresses.values():
++        for devs in list(addresses.values()):
+             if len(devs) > 1 and 0 in devs:
+                 devs[0].address.multifunction = True
+ 
+diff --git a/virtinst/hostkeymap.py b/virtinst/hostkeymap.py
+index 87a80ef6..6ab474fb 100644
+--- a/virtinst/hostkeymap.py
++++ b/virtinst/hostkeymap.py
+@@ -202,7 +202,7 @@ def sanitize_keymap(kt):
+         return len(b) - len(a)
+ 
+     clean_kt = kt.replace("-", "").replace("_", "")
+-    sorted_keys = sorted(keytable.keys(), len_cmp)
++    sorted_keys = sorted(list(keytable.keys()), len_cmp)
+ 
+     for key in sorted_keys:
+         origkey = key
+diff --git a/virtinst/osdict.py b/virtinst/osdict.py
+index c173554b..65b81750 100644
+--- a/virtinst/osdict.py
++++ b/virtinst/osdict.py
+@@ -98,12 +98,12 @@ def _sort(tosort, sortpref=None, limit_point_releases=False):
+     # debian5, debian4, fedora14, fedora13
+     #   rather than
+     # debian4, debian5, fedora13, fedora14
+-    for distro_list in distro_mappings.values():
++    for distro_list in list(distro_mappings.values()):
+         distro_list.sort()
+         distro_list.reverse()
+ 
+     # Move the sortpref values to the front of the list
+-    sorted_distro_list = distro_mappings.keys()
++    sorted_distro_list = list(distro_mappings.keys())
+     sorted_distro_list.sort()
+     sortpref.reverse()
+     for prefer in sortpref:
+diff --git a/virtinst/pollhelpers.py b/virtinst/pollhelpers.py
+index 64cdb32c..91c5e65a 100644
+--- a/virtinst/pollhelpers.py
++++ b/virtinst/pollhelpers.py
+@@ -50,7 +50,7 @@ def _new_poll_helper(origmap, typename, listfunc, buildfunc):
+             current[connkey] = origmap[connkey]
+             del(origmap[connkey])
+ 
+-    return (origmap.values(), new.values(), current.values())
++    return (list(origmap.values()), list(new.values()), list(current.values()))
+ 
+ 
+ def _old_poll_helper(origmap, typename,
+@@ -108,7 +108,7 @@ def _old_poll_helper(origmap, typename,
+         except Exception:
+             logging.exception("Couldn't fetch %s '%s'", typename, name)
+ 
+-    return (origmap.values(), new.values(), current.values())
++    return (list(origmap.values()), list(new.values()), list(current.values()))
+ 
+ 
+ def fetch_nets(backend, origmap, build_func):
+@@ -209,7 +209,7 @@ def _old_fetch_vms(backend, origmap, build_func):
+     new = {}
+ 
+     # Build list of previous vms with proper id/name mappings
+-    for vm in origmap.values():
++    for vm in list(origmap.values()):
+         if vm.is_active():
+             oldActiveIDs[vm.get_id()] = vm
+         else:
+@@ -272,7 +272,7 @@ def _old_fetch_vms(backend, origmap, build_func):
+             except Exception:
+                 logging.exception("Couldn't fetch domain '%s'", name)
+ 
+-    return (origmap.values(), new.values(), current.values())
++    return (list(origmap.values()), list(new.values()), list(current.values()))
+ 
+ 
+ def fetch_vms(backend, origmap, build_func):
+diff --git a/virtinst/storage.py b/virtinst/storage.py
+index c7c75127..52a0df4c 100644
+--- a/virtinst/storage.py
++++ b/virtinst/storage.py
+@@ -130,7 +130,7 @@ class StoragePool(_StorageObject):
+         """
+         Return list of appropriate pool types
+         """
+-        return StoragePool._descs.keys()
++        return list(StoragePool._descs.keys())
+ 
+     @staticmethod
+     def get_pool_type_desc(pool_type):
+diff --git a/virtinst/support.py b/virtinst/support.py
+index c27dd50e..78a90810 100644
+--- a/virtinst/support.py
++++ b/virtinst/support.py
+@@ -167,7 +167,7 @@ class _SupportCheck(object):
+         self.hv_version = hv_version or {}
+         self.hv_libvirt_version = hv_libvirt_version or {}
+ 
+-        versions = ([self.version] + self.hv_libvirt_version.values())
++        versions = ([self.version] + list(self.hv_libvirt_version.values()))
+         for vstr in versions:
+             v = _version_str_to_int(vstr)
+             if vstr is not None and v != 0 and v < 7009:
+diff --git a/virtinst/urlfetcher.py b/virtinst/urlfetcher.py
+index 850d0f1b..76a61339 100644
+--- a/virtinst/urlfetcher.py
++++ b/virtinst/urlfetcher.py
+@@ -1382,7 +1382,7 @@ class ALTLinuxDistro(Distro):
+ # Build list of all *Distro classes
+ def _build_distro_list():
+     allstores = []
+-    for obj in globals().values():
++    for obj in list(globals().values()):
+         if isinstance(obj, type) and issubclass(obj, Distro) and obj.name:
+             allstores.append(obj)
+ 
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index 550fea86..1c07aa43 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -843,7 +843,7 @@ class XMLBuilder(object):
+     def _initial_child_parse(self):
+         # Walk the XML tree and hand of parsing to any registered
+         # child classes
+-        for xmlprop in self._all_child_props().values():
++        for xmlprop in list(self._all_child_props().values()):
+             if xmlprop.is_single:
+                 child_class = xmlprop.child_classes[0]
+                 prop_path = xmlprop.get_prop_xpath(self, child_class)
+@@ -926,8 +926,8 @@ class XMLBuilder(object):
+             if leave_stub:
+                 _top_node = _get_xpath_node(self._xmlstate.xml_ctx,
+                                             self.get_root_xpath())
+-            props = self._all_xml_props().values()
+-            props += self._all_child_props().values()
++            props = list(self._all_xml_props().values())
++            props += list(self._all_child_props().values())
+             for prop in props:
+                 prop.clear(self)
+         finally:
+@@ -1025,7 +1025,7 @@ class XMLBuilder(object):
+ 
+     def _find_child_prop(self, child_class, return_single=False):
+         xmlprops = self._all_child_props()
+-        for xmlprop in xmlprops.values():
++        for xmlprop in list(xmlprops.values()):
+             if xmlprop.is_single and not return_single:
+                 continue
+             if child_class in xmlprop.child_classes:
+@@ -1084,7 +1084,7 @@ class XMLBuilder(object):
+         Return a list of all XML child objects with the passed class
+         """
+         ret = []
+-        for prop in self._all_child_props().values():
++        for prop in list(self._all_child_props().values()):
+             ret += [obj for obj in util.listify(prop._get(self))
+                     if obj.__class__ == klass]
+         return ret
+@@ -1165,7 +1165,7 @@ class XMLBuilder(object):
+         xmlprops = self._all_xml_props()
+         childprops = self._all_child_props()
+ 
+-        for prop in xmlprops.values():
++        for prop in list(xmlprops.values()):
+             prop._set_default(self)
+ 
+         # Set up preferred XML ordering
+@@ -1180,7 +1180,7 @@ class XMLBuilder(object):
+             elif key in childprops:
+                 do_order.insert(0, key)
+ 
+-        for key in childprops.keys():
++        for key in list(childprops.keys()):
+             if key not in do_order:
+                 do_order.append(key)
+ 
+-- 
+2.16.2
+

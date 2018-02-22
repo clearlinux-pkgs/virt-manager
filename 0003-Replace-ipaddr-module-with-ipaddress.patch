@@ -1,0 +1,345 @@
+From 5553cbeb3870250abe1df06ef75758d0a9f1f12b Mon Sep 17 00:00:00 2001
+From: Radostin Stoyanov <rstoyanov1@gmail.com>
+Date: Wed, 11 Oct 2017 12:35:48 +0100
+Subject: [PATCH 03/45] Replace ipaddr module with ipaddress
+
+The `ipaddress` is available in Python 3.3+ [1] and backport for
+Python 2 is available on PyPI [2].
+
+The main differences between ipaddr and ipaddress are:
+
+- ipaddress *Network classes are equivalent to the ipaddr *Network
+  class counterparts with the strict flag set to True.
+- ipaddress *Interface classes are equivalent to the ipaddr *Network
+  class counterparts with the strict flag set to False.
+- The factory functions in ipaddress were renamed to disambiguate them
+  from classes.
+- A few attributes were renamed to disambiguate their purpose as well.
+  (eg. network -> network_address, numhosts -> num_addresses)
+- A number of methods and functions which returned containers in ipaddr
+  now return iterators. This includes subnets, address_exclude,
+  summarize_address_range and collapse_address_list.
+
+Another major difference is that in Python 2 the `ipaddress` module
+must use unicode. [3]
+
+[1] https://www.python.org/dev/peps/pep-3144/
+[2] https://pypi.python.org/pypi/ipaddress
+[3] https://github.com/phihag/ipaddress
+---
+ virt-manager.spec.in      |  2 +-
+ virtManager/createnet.py  | 60 +++++++++++++++++++++++++++++------------------
+ virtManager/network.py    | 32 ++++++++++++++++---------
+ virtManager/sshtunnels.py | 10 +++++---
+ virtinst/interface.py     |  8 +++++--
+ 5 files changed, 72 insertions(+), 40 deletions(-)
+
+diff --git a/virt-manager.spec.in b/virt-manager.spec.in
+index d26400d9..7b9c0d12 100644
+--- a/virt-manager.spec.in
++++ b/virt-manager.spec.in
+@@ -76,7 +76,7 @@ Group: Applications/Emulators
+ Requires: libvirt-python >= 0.7.0
+ Requires: libxml2-python
+ Requires: python-requests
+-Requires: python-ipaddr
++Requires: python-ipaddress (For Python 2)
+ Requires: libosinfo >= 0.2.10
+ # Required for gobject-introspection infrastructure
+ Requires: pygobject3-base
+diff --git a/virtManager/createnet.py b/virtManager/createnet.py
+index 9413d1e9..0bcb8862 100644
+--- a/virtManager/createnet.py
++++ b/virtManager/createnet.py
+@@ -18,13 +18,14 @@
+ # MA 02110-1301 USA.
+ #
+ 
++import ipaddress
+ import logging
++import sys
+ 
+ from gi.repository import Gtk
+ from gi.repository import Gdk
+ from gi.repository import Pango
+ 
+-import ipaddr
+ 
+ from virtinst import Network
+ 
+@@ -44,12 +45,15 @@ _red = Gdk.Color.parse("#ffc0c0")[1]
+ _black = Gdk.Color.parse("#000000")[1]
+ _white = Gdk.Color.parse("#f0f0f0")[1]
+ 
++if sys.version_info[0] == 3:
++    unicode = str  # pylint: disable=redefined-builtin
++
+ 
+ def _make_ipaddr(addrstr):
+     if addrstr is None:
+         return None
+     try:
+-        return ipaddr.IPNetwork(addrstr)
++        return ipaddress.ip_network(unicode(addrstr), strict=False)
+     except Exception:
+         return None
+ 
+@@ -318,7 +322,7 @@ class vmmCreateNetwork(vmmGObjectUI):
+             return self.err.val_err(_("Invalid Network Address"),
+                     _("The network must be an IPv4 address"))
+ 
+-        if ip.numhosts < 8:
++        if ip.num_addresses < 8:
+             return self.err.val_err(_("Invalid Network Address"),
+                     _("The network must address at least 8 addresses."))
+ 
+@@ -624,17 +628,19 @@ class vmmCreateNetwork(vmmGObjectUI):
+             src.modify_bg(Gtk.StateType.NORMAL, _red)
+             return
+ 
+-        valid_ip = (ip.numhosts >= 8 and ip.is_private)
+-        gateway = (ip.prefixlen != 32 and str(ip.network + 1) or "")
++        valid_ip = (ip.num_addresses >= 8 and ip.is_private)
++        gateway = (ip.prefixlen != 32 and str(ip.network_address + 1) or "")
+         info = (ip.is_private and _("Private") or _("Other/Public"))
+-        start = int(ip.numhosts // 2)
+-        end = int(ip.numhosts - 2)
++        start = int(ip.num_addresses // 2)
++        end = int(ip.num_addresses - 2)
+ 
+         src.modify_bg(Gtk.StateType.NORMAL, valid_ip and _green or _red)
+         self.widget("net-info-gateway").set_text(gateway)
+         self.widget("net-info-type").set_text(info)
+-        self.widget("net-dhcpv4-start").set_text(str(ip.network + start))
+-        self.widget("net-dhcpv4-end").set_text(str(ip.network + end))
++        self.widget("net-dhcpv4-start").set_text(
++            str(ip.network_address + start)
++        )
++        self.widget("net-dhcpv4-end").set_text(str(ip.network_address + end))
+ 
+     def change_routev4_network(self, src):
+         ntwk = self.get_config_routev4_network()
+@@ -675,8 +681,8 @@ class vmmCreateNetwork(vmmGObjectUI):
+             src.modify_bg(Gtk.StateType.NORMAL, _red)
+             return
+ 
+-        valid_ip = (ip.numhosts == 64 and ip.is_private)
+-        gateway = (ip.prefixlen != 64 and str(ip.network + 1) or "")
++        valid_ip = (ip.num_addresses == 64 and ip.is_private)
++        gateway = (ip.prefixlen != 64 and str(ip.network_address + 1) or "")
+         start = 256
+         end = 512 - 1
+         if ip.is_private:
+@@ -691,8 +697,10 @@ class vmmCreateNetwork(vmmGObjectUI):
+         src.modify_bg(Gtk.StateType.NORMAL, valid_ip and _green or _red)
+         self.widget("net-info-gateway-ip6").set_text(gateway)
+         self.widget("net-info-type-ip6").set_text(info)
+-        self.widget("net-dhcpv6-start").set_text(str(ip.network + start))
+-        self.widget("net-dhcpv6-end").set_text(str(ip.network + end))
++        self.widget("net-dhcpv6-start").set_text(
++            str(ip.network_address + start)
++        )
++        self.widget("net-dhcpv6-end").set_text(str(ip.network_address + end))
+ 
+     def change_routev6_network(self, src):
+         ntwk = self.get_config_routev6_network()
+@@ -763,43 +771,49 @@ class vmmCreateNetwork(vmmGObjectUI):
+         if self.get_config_ipv4_enable():
+             ip = self.get_config_ip4()
+             ipobj = net.add_ip()
+-            ipobj.address = str(ip.network + 1)
++            ipobj.address = str(ip.network_address + 1)
+             ipobj.netmask = str(ip.netmask)
+ 
+             if self.get_config_dhcpv4_enable():
+                 dhcpobj = ipobj.add_range()
+-                dhcpobj.start = str(self.get_config_dhcpv4_start().network)
+-                dhcpobj.end = str(self.get_config_dhcpv4_end().network)
++                dhcpobj.start = str(
++                    self.get_config_dhcpv4_start().network_address
++                )
++                dhcpobj.end = str(self.get_config_dhcpv4_end().network_address)
+ 
+         if self.get_config_ipv6_enable():
+             ip = self.get_config_ip6()
+             ipobj = net.add_ip()
+             ipobj.family = "ipv6"
+-            ipobj.address = str(ip.network + 1)
++            ipobj.address = str(ip.network_address + 1)
+             ipobj.prefix = str(ip.prefixlen)
+ 
+             if self.get_config_dhcpv6_enable():
+                 dhcpobj = ipobj.add_range()
+-                dhcpobj.start = str(self.get_config_dhcpv6_start().network)
+-                dhcpobj.end = str(self.get_config_dhcpv6_end().network)
++                dhcpobj.start = str(
++                    self.get_config_dhcpv6_start().network_address
++                )
++                dhcpobj.end = str(
++                    self.get_config_dhcpv6_end().network_address
++                )
+ 
+         netaddr = _make_ipaddr(self.get_config_routev4_network())
+         gwaddr = _make_ipaddr(self.get_config_routev4_gateway())
+         if netaddr and gwaddr:
+             route = net.add_route()
+             route.family = "ipv4"
+-            route.address = netaddr.network
++            route.address = netaddr.network_address
+             route.prefix = netaddr.prefixlen
+-            route.gateway = gwaddr.network
++            route.gateway = gwaddr.network_address
+ 
+         netaddr = _make_ipaddr(self.get_config_routev6_network())
+         gwaddr = _make_ipaddr(self.get_config_routev6_gateway())
+         if netaddr and gwaddr:
+             route = net.add_route()
+             route.family = "ipv6"
+-            route.address = netaddr.network
++            route.address = netaddr.network_address
+             route.prefix = netaddr.prefixlen
+-            route.gateway = gwaddr.network
++            route.gateway = gwaddr.network_address
+ 
+         return net
+ 
+diff --git a/virtManager/network.py b/virtManager/network.py
+index 4c937e0e..4b8760fc 100644
+--- a/virtManager/network.py
++++ b/virtManager/network.py
+@@ -18,24 +18,34 @@
+ # MA 02110-1301 USA.
+ #
+ 
+-import ipaddr
++import ipaddress
++import sys
+ 
+ from virtinst import Network
+ 
+ from .libvirtobject import vmmLibvirtObject
+ 
++if sys.version_info[0] == 3:
++    unicode = str  # pylint: disable=redefined-builtin
++
+ 
+ def _make_addr_str(addrStr, prefix, netmaskStr):
+     if prefix:
+-        return str(ipaddr.IPNetwork(str(addrStr) + "/" +
+-                                      str(prefix)).masked())
++        return str(
++            ipaddress.ip_network(
++                unicode("{}/{}").format(addrStr, prefix), strict=False
++            )
++        )
+     elif netmaskStr:
+-        netmask = ipaddr.IPAddress(netmaskStr)
+-        network = ipaddr.IPAddress(addrStr)
+-        return str(ipaddr.IPNetwork(str(network) + "/" +
+-                                    str(netmask)).masked())
++        netmask = ipaddress.ip_address(unicode((netmaskStr)))
++        network = ipaddress.ip_address(unicode((addrStr)))
++        return str(
++            ipaddress.ip_network(
++                unicode("{}/{}").format(network, netmask), strict=False
++            )
++        )
+     else:
+-        return str(ipaddr.IPNetwork(str(addrStr)))
++        return str(ipaddress.ip_network(unicode(addrStr), strict=False))
+ 
+ 
+ class vmmNetwork(vmmLibvirtObject):
+@@ -138,7 +148,7 @@ class vmmNetwork(vmmLibvirtObject):
+             return [None, None]
+ 
+         routeAddr = _make_addr_str(route.address, route.prefix, route.netmask)
+-        routeVia = str(ipaddr.IPAddress(str(route.gateway)))
++        routeVia = str(ipaddress.ip_address(unicode(route.gateway)))
+ 
+         if not routeAddr or not routeVia:
+             return [None, None]
+@@ -172,8 +182,8 @@ class vmmNetwork(vmmLibvirtObject):
+ 
+         dhcp = [None, None]
+         if dhcpstart and dhcpend:
+-            dhcp = [str(ipaddr.IPAddress(dhcpstart)),
+-                    str(ipaddr.IPAddress(dhcpend))]
++            dhcp = [str(ipaddress.ip_address(unicode(dhcpstart))),
++                    str(ipaddress.ip_address(unicode(dhcpend)))]
+         return [ret, dhcp]
+ 
+     def get_ipv4_network(self):
+diff --git a/virtManager/sshtunnels.py b/virtManager/sshtunnels.py
+index b00b1889..0a3b729c 100644
+--- a/virtManager/sshtunnels.py
++++ b/virtManager/sshtunnels.py
+@@ -23,11 +23,15 @@ import os
+ import Queue
+ import socket
+ import signal
++import sys
+ import threading
+-import ipaddr
++import ipaddress
+ 
+ from .baseclass import vmmGObject
+ 
++if sys.version_info[0] == 3:
++    unicode = str  # pylint: disable=redefined-builtin
++
+ 
+ class ConnectionInfo(object):
+     """
+@@ -51,13 +55,13 @@ class ConnectionInfo(object):
+ 
+     def _is_listen_localhost(self, host=None):
+         try:
+-            return ipaddr.IPNetwork(host or self.gaddr).is_loopback
++            return ipaddress.ip_network(unicode(host or self.gaddr)).is_loopback
+         except Exception:
+             return False
+ 
+     def _is_listen_any(self):
+         try:
+-            return ipaddr.IPNetwork(self.gaddr).is_unspecified
++            return ipaddress.ip_network(unicode(self.gaddr)).is_unspecified
+         except Exception:
+             return False
+ 
+diff --git a/virtinst/interface.py b/virtinst/interface.py
+index 7621751b..8565c4e7 100644
+--- a/virtinst/interface.py
++++ b/virtinst/interface.py
+@@ -20,14 +20,18 @@
+ Classes for building and installing libvirt interface xml
+ """
+ 
++import ipaddress
+ import logging
++import sys
+ 
+ import libvirt
+-import ipaddr
+ 
+ from . import util
+ from .xmlbuilder import XMLBuilder, XMLChildProperty, XMLProperty
+ 
++if sys.version_info[0] == 3:
++    unicode = str  # pylint: disable=redefined-builtin
++
+ 
+ class _IPAddress(XMLBuilder):
+     _XML_PROP_ORDER = ["address", "prefix"]
+@@ -38,7 +42,7 @@ class _IPAddress(XMLBuilder):
+     ######################
+ 
+     def _validate_ipaddr(self, addr):
+-        ipaddr.IPAddress(addr)
++        ipaddress.ip_address(unicode(addr))
+         return addr
+ 
+     address = XMLProperty("./@address", validate_cb=_validate_ipaddr)
+-- 
+2.16.2
+

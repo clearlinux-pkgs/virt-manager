@@ -1,0 +1,29 @@
+From 5146d6612670d74e3d80eaae4ca9b16e16f657bc Mon Sep 17 00:00:00 2001
+From: Radostin Stoyanov <rstoyanov1@gmail.com>
+Date: Wed, 11 Oct 2017 12:35:58 +0100
+Subject: [PATCH 09/45] python3 compat: python3 strings have no decode()
+
+---
+ virtinst/xmlbuilder.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index 1c07aa43..a39ea19e 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -829,7 +829,11 @@ class XMLBuilder(object):
+         self.conn = conn
+ 
+         if self._XML_SANITIZE:
+-            parsexml = parsexml.decode('ascii', 'ignore').encode('ascii')
++            if hasattr(parsexml, 'decode'):
++                parsexml = parsexml.decode("ascii", "ignore").encode("ascii")
++            else:
++                parsexml = parsexml.encode("ascii", "ignore").decode("ascii")
++
+             parsexml = "".join([c for c in parsexml if c in string.printable])
+ 
+         self._propstore = {}
+-- 
+2.16.2
+

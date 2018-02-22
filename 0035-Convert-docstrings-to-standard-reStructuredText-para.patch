@@ -1,0 +1,428 @@
+From d108bbe143ea0ce113873e2b21a9a7f5ebfcd535 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 14 Feb 2018 07:17:31 -0500
+Subject: [PATCH 35/45] Convert docstrings to standard reStructuredText param
+ format
+
+---
+ virtinst/capabilities.py    | 10 +++++-----
+ virtinst/device.py          |  4 ++--
+ virtinst/devicedisk.py      | 29 +++++++++++------------------
+ virtinst/deviceinterface.py |  2 +-
+ virtinst/guest.py           | 10 +++++-----
+ virtinst/installer.py       |  8 +++-----
+ virtinst/nodedev.py         |  9 ++++-----
+ virtinst/storage.py         | 13 ++++++-------
+ virtinst/support.py         | 15 +++++++--------
+ virtinst/util.py            | 18 +++++++++---------
+ virtinst/xmlbuilder.py      | 30 ++++++++++++++----------------
+ 11 files changed, 67 insertions(+), 81 deletions(-)
+
+diff --git a/virtinst/capabilities.py b/virtinst/capabilities.py
+index f154eecd..c39545fd 100644
+--- a/virtinst/capabilities.py
++++ b/virtinst/capabilities.py
+@@ -358,12 +358,12 @@ class Capabilities(XMLBuilder):
+         This function throws C{ValueError}s if any of the requested values are
+         not found.
+ 
+-        @param typ: Virtualization type ('hvm', 'xen', ...)
+-        @param arch: Guest architecture ('x86_64', 'i686' ...)
+-        @param os_type: Hypervisor name ('qemu', 'kvm', 'xen', ...)
+-        @param machine: Optional machine type to emulate
++        :param typ: Virtualization type ('hvm', 'xen', ...)
++        :param arch: Guest architecture ('x86_64', 'i686' ...)
++        :param os_type: Hypervisor name ('qemu', 'kvm', 'xen', ...)
++        :param machine: Optional machine type to emulate
+ 
+-        @returns: A _CapsInfo object containing the found guest and domain
++        :returns: A _CapsInfo object containing the found guest and domain
+         """
+         # F22 libxl xen still puts type=linux in the XML, so we need
+         # to handle it for caps lookup
+diff --git a/virtinst/device.py b/virtinst/device.py
+index 37d9364b..d75be4c1 100644
+--- a/virtinst/device.py
++++ b/virtinst/device.py
+@@ -176,7 +176,7 @@ class VirtualDevice(XMLBuilder):
+         """
+         Initialize device state
+ 
+-        @param conn: libvirt connection to validate device against
++        :param conn: libvirt connection to validate device against
+         """
+         XMLBuilder.__init__(self, *args, **kwargs)
+         self._XML_PROP_ORDER = self._XML_PROP_ORDER + ["alias", "address"]
+@@ -198,7 +198,7 @@ class VirtualDevice(XMLBuilder):
+         Perform potentially hazardous device initialization, like
+         storage creation or host device reset
+ 
+-        @param meter: Optional progress meter to use
++        :param meter: Optional progress meter to use
+         """
+         # Will be overwritten by subclasses if necessary.
+         ignore = meter
+diff --git a/virtinst/devicedisk.py b/virtinst/devicedisk.py
+index a674fa1d..646f33d9 100644
+--- a/virtinst/devicedisk.py
++++ b/virtinst/devicedisk.py
+@@ -205,8 +205,7 @@ class VirtualDisk(VirtualDevice):
+         Check if the passed user has search permissions for all the
+         directories in the disk path.
+ 
+-        @return: List of the directories the user cannot search, or empty list
+-        @rtype : C{list}
++        :returns: List of the directories the user cannot search, or empty list
+         """
+         if path is None:
+             return []
+@@ -276,8 +275,7 @@ class VirtualDisk(VirtualDevice):
+         """
+         Try to fix any permission problems found by check_path_search_for_user
+ 
+-        @return: Return a dictionary of entries {broken path : error msg}
+-        @rtype : C{dict}
++        :returns: Return a dictionary of entries {broken path : error msg}
+         """
+         def fix_perms(dirname, useacl=True):
+             if useacl:
+@@ -334,11 +332,11 @@ class VirtualDisk(VirtualDevice):
+         """
+         Return a list of VM names that are using the passed path.
+ 
+-        @param conn: virConnect to check VMs
+-        @param path: Path to check for
+-        @param shareable: Path we are checking is marked shareable, so
++        :param conn: virConnect to check VMs
++        :param path: Path to check for
++        :param shareable: Path we are checking is marked shareable, so
+             don't warn if it conflicts with another shareable source.
+-        @param read_only: Path we are checking is marked read_only, so
++        :param read_only: Path we are checking is marked read_only, so
+             don't warn if it conflicts with another read_only source.
+         """
+         if not path:
+@@ -952,8 +950,7 @@ class VirtualDisk(VirtualDevice):
+         check if specified storage is in use by any other VMs on passed
+         connection.
+ 
+-        @return: list of colliding VM names
+-        @rtype: C{list}
++        :returns: list of colliding VM names
+         """
+         if not self.path:
+             return False
+@@ -970,7 +967,7 @@ class VirtualDisk(VirtualDevice):
+         """
+         Returns the suggested disk target prefix (hd, xvd, sd ...) for the
+         disk.
+-        @returns: str prefix, or None if no reasonable guess can be made
++        :returns: str prefix, or None if no reasonable guess can be made
+         """
+         # The upper limits here aren't necessarilly 1024, but let the HV
+         # error as appropriate.
+@@ -1012,13 +1009,9 @@ class VirtualDisk(VirtualDevice):
+         mapped onto that controller.
+         Sets self.target, and returns the generated value.
+ 
+-        @param skip_targets: list of targets to exclude
+-        @type skip_targets: C{list}
+-        @param pref_ctrl: preferred controller to connect the disk to
+-        @type pref_ctrl: C{int}
+-        @raise ValueError: can't determine target type, no targets available
+-        @returns generated target
+-        @rtype C{str}
++        :param skip_targets: list of targets to exclude
++        :param pref_ctrl: preferred controller to connect the disk to
++        :returns: generated target
+         """
+         prefix, maxnode = self.get_target_prefix(skip_targets)
+         skip_targets = [t for t in skip_targets if t and t.startswith(prefix)]
+diff --git a/virtinst/deviceinterface.py b/virtinst/deviceinterface.py
+index a1e696ab..f01dd1a0 100644
+--- a/virtinst/deviceinterface.py
++++ b/virtinst/deviceinterface.py
+@@ -176,7 +176,7 @@ class VirtualNetworkInterface(VirtualDevice):
+     @staticmethod
+     def is_conflict_net(conn, searchmac):
+         """
+-        @returns: a two element tuple:
++        :returns: a two element tuple:
+             first element is True if fatal collision occured
+             second element is a string description of the collision.
+ 
+diff --git a/virtinst/guest.py b/virtinst/guest.py
+index 633c20cf..4fecc2f3 100644
+--- a/virtinst/guest.py
++++ b/virtinst/guest.py
+@@ -261,7 +261,7 @@ class Guest(XMLBuilder):
+         """
+         Add the passed device to the guest's device list.
+ 
+-        @param dev: VirtualDevice instance to attach to guest
++        :param dev: VirtualDevice instance to attach to guest
+         """
+         self.add_child(dev)
+ 
+@@ -269,7 +269,7 @@ class Guest(XMLBuilder):
+         """
+         Remove the passed device from the guest's device list
+ 
+-        @param dev: VirtualDevice instance
++        :param dev: VirtualDevice instance
+         """
+         self.remove_child(dev)
+ 
+@@ -278,7 +278,7 @@ class Guest(XMLBuilder):
+         Return a list of devices of type 'devtype' that will installed on
+         the guest.
+ 
+-        @param devtype: Device type to search for (one of
++        :param devtype: Device type to search for (one of
+                         VirtualDevice.virtual_device_types)
+         """
+         newlist = []
+@@ -414,7 +414,7 @@ class Guest(XMLBuilder):
+         """
+         Actually do the XML logging, guest defining/creating
+ 
+-        @param doboot: Boot guest even if it has no install phase
++        :param doboot: Boot guest even if it has no install phase
+         """
+         meter_label = _("Creating domain...")
+         meter = util.ensure_meter(meter)
+@@ -469,7 +469,7 @@ class Guest(XMLBuilder):
+                       doboot=True, transient=False):
+         """
+         Begin the guest install (stage1).
+-        @param return_xml: Don't create the guest, just return generated XML
++        :param return_xml: Don't create the guest, just return generated XML
+         """
+         if self.domain is not None:
+             raise RuntimeError(_("Domain has already been started!"))
+diff --git a/virtinst/installer.py b/virtinst/installer.py
+index 948f6eae..f6145c07 100644
+--- a/virtinst/installer.py
++++ b/virtinst/installer.py
+@@ -104,11 +104,9 @@ class Installer(object):
+         Generate the portion of the guest xml that determines boot devices
+         and parameters. (typically the <os></os> block)
+ 
+-        @param guest: Guest instance we are installing
+-        @type guest: L{Guest}
+-        @param isinstall: Whether we want xml for the 'install' phase or the
++        :param guest: Guest instance we are installing
++        :param isinstall: Whether we want xml for the 'install' phase or the
+                           'post-install' phase.
+-        @type isinstall: C{bool}
+         """
+         if isinstall and not self.has_install_phase():
+             return
+@@ -216,7 +214,7 @@ class Installer(object):
+         an error is encountered in the detection process (or if detection
+         is not relevant for the Installer type), None is returned.
+ 
+-        @returns: distro variant string, or None
++        :returns: distro variant string, or None
+         """
+         ignore = guest
+         logging.debug("distro detection not available for this installer.")
+diff --git a/virtinst/nodedev.py b/virtinst/nodedev.py
+index e3080d69..a4b79f33 100644
+--- a/virtinst/nodedev.py
++++ b/virtinst/nodedev.py
+@@ -64,14 +64,14 @@ class NodeDevice(XMLBuilder):
+         found, we will attempt to parse the name as would be passed to
+         devAddressToNodeDev
+ 
+-        @param conn: libvirt.virConnect instance to perform the lookup on
+-        @param idstring: libvirt node device name to lookup, or address
++        :param conn: libvirt.virConnect instance to perform the lookup on
++        :param idstring: libvirt node device name to lookup, or address
+             of the form:
+             - bus.addr (ex. 001.003 for a usb device)
+             - vendor:product (ex. 0x1234:0x5678 for a usb device
+             - (domain:)bus:slot.func (ex. 00:10.0 for a pci device)
+ 
+-        @rtype: L{NodeDevice} instance
++        :returns: NodeDevice instance
+         """
+         if not conn.check_support(conn.SUPPORT_CONN_NODEDEV):
+             raise ValueError(_("Connection does not support host device "
+@@ -128,8 +128,7 @@ class NodeDevice(XMLBuilder):
+         Use device information to attempt to print a human readable device
+         name.
+ 
+-        @returns: Device description string
+-        @rtype C{str}
++        :returns: Device description string
+         """
+         return self.name
+ 
+diff --git a/virtinst/storage.py b/virtinst/storage.py
+index 21cd5b1a..75d3cfe8 100644
+--- a/virtinst/storage.py
++++ b/virtinst/storage.py
+@@ -145,10 +145,10 @@ class StoragePool(_StorageObject):
+         Return a list of StoragePool instances built from libvirt's pool
+         source enumeration (if supported).
+ 
+-        @param conn: Libvirt connection
+-        @param name: Name for the new pool
+-        @param pool_type: Pool type string from I{Types}
+-        @param host: Option host string to poll for sources
++        :param conn: Libvirt connection
++        :param name: Name for the new pool
++        :param pool_type: Pool type string from I{Types}
++        :param host: Option host string to poll for sources
+         """
+         if not conn.check_support(conn.SUPPORT_CONN_FINDPOOLSOURCES):
+             return []
+@@ -277,7 +277,7 @@ class StoragePool(_StorageObject):
+         return the first we find, active or inactive. This iterates over
+         all pools and dumps their xml, so it is NOT quick.
+ 
+-        @returns: virStoragePool object if found, None otherwise
++        :returns: virStoragePool object if found, None otherwise
+         """
+         if not conn.check_support(conn.SUPPORT_CONN_STORAGE):
+             return None
+@@ -874,10 +874,9 @@ class StorageVolume(_StorageObject):
+         """
+         Report if requested size exceeds its pool's available amount
+ 
+-        @returns: 2 element tuple:
++        :returns: 2 element tuple:
+             1. True if collision is fatal, false otherwise
+             2. String message if some collision was encountered.
+-        @rtype: 2 element C{tuple}: (C{bool}, C{str})
+         """
+         if not self.pool:
+             return (False, "")
+diff --git a/virtinst/support.py b/virtinst/support.py
+index 78a90810..fdc1dcb8 100644
+--- a/virtinst/support.py
++++ b/virtinst/support.py
+@@ -419,14 +419,13 @@ def check_support(virtconn, feature, data=None):
+     Attempt to determine if a specific libvirt feature is support given
+     the passed connection.
+ 
+-    @param virtconn: Libvirt connection to check feature on
+-    @param feature: Feature type to check support for
+-    @type  feature: One of the SUPPORT_* flags
+-    @param data: Option libvirt object to use in feature checking
+-    @type  data: Could be virDomain, virNetwork, virStoragePool,
+-                hv name, etc
+-
+-    @returns: True if feature is supported, False otherwise
++    :param virtconn: Libvirt connection to check feature on
++    :param feature: Feature type to check support for
++    :type feature: One of the SUPPORT_* flags
++    :param data: Option libvirt object to use in feature checking
++    :type data: Could be virDomain, virNetwork, virStoragePool, hv name, etc
++
++    :returns: True if feature is supported, False otherwise
+     """
+     if "VirtualConnection" in repr(data):
+         data = data.get_conn_for_api_arg()
+diff --git a/virtinst/util.py b/virtinst/util.py
+index e6aa994f..8cef6aa5 100644
+--- a/virtinst/util.py
++++ b/virtinst/util.py
+@@ -123,16 +123,16 @@ def generate_name(base, collision_cb, suffix="", lib_collision=True,
+ 
+     output = "foobar-2.img"
+ 
+-    @param base: The base string to use for the name (e.g. "my-orig-vm-clone")
+-    @param collision_cb: A callback function to check for collision,
++    :param base: The base string to use for the name (e.g. "my-orig-vm-clone")
++    :param collision_cb: A callback function to check for collision,
+         receives the generated name as its only arg
+-    @param lib_collision: If true, the collision_cb is not a boolean function,
++    :param lib_collision: If true, the collision_cb is not a boolean function,
+         and instead throws a libvirt error on failure
+-    @param start_num: The number to start at for generating non colliding names
+-    @param sep: The seperator to use between the basename and the
++    :param start_num: The number to start at for generating non colliding names
++    :param sep: The seperator to use between the basename and the
+         generated number (default is "-")
+-    @param force_num: Force the generated name to always end with a number
+-    @param collidelist: An extra list of names to check for collision
++    :param force_num: Force the generated name to always end with a number
++    :param collidelist: An extra list of names to check for collision
+     """
+     collidelist = collidelist or []
+ 
+@@ -203,8 +203,8 @@ def is_error_nosupport(err):
+     Check if passed exception indicates that the called libvirt command isn't
+     supported
+ 
+-    @param err: Exception raised from command call
+-    @returns: True if command isn't supported, False if we can't determine
++    :param err: Exception raised from command call
++    :returns: True if command isn't supported, False if we can't determine
+     """
+     if not isinstance(err, libvirt.libvirtError):
+         return False
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index 5781cdcd..459522f8 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -420,29 +420,29 @@ class XMLProperty(property):
+         existing guest XML, we  use the xpath value to get/set the value
+         in the parsed XML document.
+ 
+-        @param doc: option doc string for the property
+-        @param xpath: xpath string which maps to the associated property
++        :param doc: option doc string for the property
++        :param xpath: xpath string which maps to the associated property
+                       in a typical XML document
+-        @param name: Just a string to print for debugging, only needed
++        :param name: Just a string to print for debugging, only needed
+             if xpath isn't specified.
+-        @param set_converter: optional function for converting the property
++        :param set_converter: optional function for converting the property
+             value from the virtinst API to the guest XML. For example,
+             the Guest.memory API was once in MiB, but the libvirt domain
+             memory API is in KiB. So, if xpath is specified, on a 'get'
+             operation we convert the XML value with int(val) / 1024.
+-        @param validate_cb: Called once when value is set, should
++        :param validate_cb: Called once when value is set, should
+             raise a RuntimeError if the value is not proper.
+-        @param is_bool: Whether this is a boolean property in the XML
+-        @param is_int: Whether this is an integer property in the XML
+-        @param is_yesno: Whether this is a yes/no property in the XML
+-        @param is_onoff: Whether this is an on/off property in the XML
+-        @param default_cb: If building XML from scratch, and this property
++        :param is_bool: Whether this is a boolean property in the XML
++        :param is_int: Whether this is an integer property in the XML
++        :param is_yesno: Whether this is a yes/no property in the XML
++        :param is_onoff: Whether this is an on/off property in the XML
++        :param default_cb: If building XML from scratch, and this property
+             is never explicitly altered, this function is called for setting
+             a default value in the XML, and for any 'get' call before the
+             first explicit 'set'.
+-        @param default_name: If the user does a set and passes in this
++        :param default_name: If the user does a set and passes in this
+             value, instead use the value of default_cb()
+-        @param do_abspath: If True, run os.path.abspath on the passed value
++        :param do_abspath: If True, run os.path.abspath on the passed value
+         """
+         self._xpath = xpath
+         if not self._xpath:
+@@ -818,10 +818,8 @@ class XMLBuilder(object):
+         """
+         Initialize state
+ 
+-        @param conn: libvirt connection to validate device against
+-        @type conn: VirtualConnection
+-        @param parsexml: Optional XML string to parse
+-        @type parsexml: C{str}
++        :param conn: VirtualConnection to validate device against
++        :param parsexml: Optional XML string to parse
+ 
+         The rest of the parameters are for internal use only
+         """
+-- 
+2.16.2
+

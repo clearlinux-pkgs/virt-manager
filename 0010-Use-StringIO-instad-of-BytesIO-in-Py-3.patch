@@ -1,0 +1,89 @@
+From 81d68e6100d20dd23d54a5ac30f6e2b49d9ee4a8 Mon Sep 17 00:00:00 2001
+From: Radostin Stoyanov <rstoyanov1@gmail.com>
+Date: Wed, 11 Oct 2017 12:36:00 +0100
+Subject: [PATCH 10/45] Use StringIO instad of BytesIO in Py 3
+
+The print function in Python will convert printed arguments to text
+strings [1] and thus print() cannot be used with binary mode file
+objects.
+
+In Python 2 the write() method of BytesIO() takes as input *bytes* object
+which refers to *str* in Python 3. [2] The write() method of StringIO()
+takes *unicode* object. [3] Therefore, StringIO() object cannot be used with
+the print() function.
+
+In Python 3 the write() method of BytesIO() takes a *bytes* object (not
+*str*). [4] Therefore, the BytesIO() obj cannot be used with print().
+However, the write() method of StringIO() in Python 3 takes a *str* as
+input.[5]
+
+Example of the issue:
+
+    from __future__ import print_function
+    import io
+
+    a = io.BytesIO()
+    b = io.StringIO()
+
+    print("test", file=a)  <- Fails for Python 3
+    print("test", file=b)  <- Fails for Python 2
+
+    a.write('%s\n' % "test")  <- Fails for Python 3
+    b.write('%s\n' % "test")  <- Fails for Python 2
+
+[1] https://docs.python.org/3.5/library/functions.html#print
+[2] https://docs.python.org/2/library/io.html#io.BufferedWriter.write
+[3] https://docs.python.org/2/library/io.html#io.TextIOBase.write
+[4] https://docs.python.org/3/library/io.html#io.BufferedWriter.write
+[5] https://docs.python.org/3/library/io.html#io.TextIOBase.write
+---
+ tests/clitest.py      | 6 +++++-
+ tests/virtconvtest.py | 8 +++++++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/tests/clitest.py b/tests/clitest.py
+index 18513597..3a5f1214 100644
+--- a/tests/clitest.py
++++ b/tests/clitest.py
+@@ -146,7 +146,11 @@ class Command(object):
+         oldstdin = sys.stdin
+         oldargv = sys.argv
+         try:
+-            out = io.BytesIO()
++            if sys.version_info[0] == 3:
++                out = io.StringIO()
++            else:
++                out = io.BytesIO()
++
+             sys.stdout = out
+             sys.stderr = out
+             sys.argv = self.argv
+diff --git a/tests/virtconvtest.py b/tests/virtconvtest.py
+index 3afb3924..71ed6717 100644
+--- a/tests/virtconvtest.py
++++ b/tests/virtconvtest.py
+@@ -20,6 +20,7 @@ from __future__ import print_function
+ import glob
+ import io
+ import os
++import sys
+ import unittest
+ 
+ from virtconv import VirtConverter
+@@ -32,7 +33,12 @@ out_dir = base_dir + "libvirt_output"
+ 
+ class TestVirtConv(unittest.TestCase):
+     def _convert_helper(self, infile, outfile, in_type, disk_format):
+-        outbuf = io.BytesIO()
++
++        if sys.version_info[0] == 3:
++            outbuf = io.StringIO()
++        else:
++            outbuf = io.BytesIO()
++
+         def print_cb(msg):
+             print(msg, file=outbuf)
+ 
+-- 
+2.16.2
+

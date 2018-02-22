@@ -1,0 +1,34 @@
+From b8e2952a9c188e1b4302690585339f89a1c67bb2 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 27 Jan 2018 14:33:31 -0500
+Subject: [PATCH 15/45] connect: Fix urllib usage on py3
+
+---
+ virtManager/connect.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/virtManager/connect.py b/virtManager/connect.py
+index bbef0a08..ec3bc5d8 100644
+--- a/virtManager/connect.py
++++ b/virtManager/connect.py
+@@ -22,7 +22,7 @@ import glob
+ import os
+ import logging
+ import socket
+-import urllib
++import urllib.parse
+ 
+ from gi.repository import Gio
+ from gi.repository import GObject
+@@ -409,7 +409,7 @@ class vmmConnect(vmmGObjectUI):
+ 
+         addrstr = ""
+         if user:
+-            addrstr += urllib.quote(user) + "@"
++            addrstr += urllib.parse.quote(user) + "@"
+ 
+         if host.count(":") > 1:
+             host = "[%s]" % host
+-- 
+2.16.2
+

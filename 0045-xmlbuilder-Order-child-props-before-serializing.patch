@@ -1,0 +1,64 @@
+From 059fb7d0ba1d414db3db485903972b48c1dda629 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 20 Feb 2018 11:41:04 -0500
+Subject: [PATCH 45/45] xmlbuilder: Order child props before serializing
+
+We were implicitly depending on dict hash ordering here, which
+was causing some different XML output in centos CI
+---
+ tests/cli-test-xml/compare/virt-install-singleton-config-2.xml | 4 ++--
+ virtinst/xmlbuilder.py                                         | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/tests/cli-test-xml/compare/virt-install-singleton-config-2.xml b/tests/cli-test-xml/compare/virt-install-singleton-config-2.xml
+index b25d8c60..058d2b73 100644
+--- a/tests/cli-test-xml/compare/virt-install-singleton-config-2.xml
++++ b/tests/cli-test-xml/compare/virt-install-singleton-config-2.xml
+@@ -91,6 +91,7 @@
+     <feature policy="disable" name="distest"/>
+     <feature policy="forbid" name="foo"/>
+     <feature policy="forbid" name="bar"/>
++    <cache mode="emulate" level="3"/>
+     <numa>
+       <cell id="0" cpus="1,2,3" memory="1024">
+         <distances>
+@@ -105,7 +106,6 @@
+         </distances>
+       </cell>
+     </numa>
+-    <cache mode="emulate" level="3"/>
+   </cpu>
+   <clock offset="utc">
+     <timer name="rtc" tickpolicy="merge"/>
+@@ -259,6 +259,7 @@
+     <feature policy="disable" name="distest"/>
+     <feature policy="forbid" name="foo"/>
+     <feature policy="forbid" name="bar"/>
++    <cache mode="emulate" level="3"/>
+     <numa>
+       <cell id="0" cpus="1,2,3" memory="1024">
+         <distances>
+@@ -273,7 +274,6 @@
+         </distances>
+       </cell>
+     </numa>
+-    <cache mode="emulate" level="3"/>
+   </cpu>
+   <clock offset="utc">
+     <timer name="rtc" tickpolicy="merge"/>
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index a8bae2f6..9055bd6a 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -845,7 +845,7 @@ class XMLBuilder(object):
+             elif key in childprops:
+                 do_order.insert(0, key)
+ 
+-        for key in list(childprops.keys()):
++        for key in sorted(list(childprops.keys())):
+             if key not in do_order:
+                 do_order.append(key)
+ 
+-- 
+2.16.2
+

@@ -1,0 +1,103 @@
+From 6de65ab328109cc350bbde00c3289c6d4f70ba14 Mon Sep 17 00:00:00 2001
+From: Radostin Stoyanov <rstoyanov1@gmail.com>
+Date: Wed, 11 Oct 2017 12:35:49 +0100
+Subject: [PATCH 04/45] urlfetcher: Python 2/3 compatability for 'urllib'
+
+The `urllib2` module has been split across several modules in Python 3
+named `urllib.request` and `urllib.error`. [1]
+
+[1] https://docs.python.org/2.7/library/urllib2.html
+---
+ virtinst/uri.py        | 13 +++++++++++--
+ virtinst/urlfetcher.py | 23 ++++++++++++++++-------
+ 2 files changed, 27 insertions(+), 9 deletions(-)
+
+diff --git a/virtinst/uri.py b/virtinst/uri.py
+index 29f658d5..c414bfed 100644
+--- a/virtinst/uri.py
++++ b/virtinst/uri.py
+@@ -19,7 +19,16 @@
+ 
+ import logging
+ import re
+-import urllib
++import sys
++
++# pylint: disable=no-name-in-module,import-error
++if sys.version_info[0] == 3:
++    # Python 3
++    from urllib.parse import unquote
++else:
++    # Python 2
++    from urlparse import unquote
++
+ 
+ from .cli import parse_optstr_tuples
+ 
+@@ -47,7 +56,7 @@ class URI(object):
+     """
+     def __init__(self, uri):
+         self.uri = uri
+-        unquoted_uri = urllib.unquote(uri)
++        unquoted_uri = unquote(uri)
+ 
+         (self.scheme, self.username, self.hostname,
+          self.path, self.query, self.fragment) = self._split(unquoted_uri)
+diff --git a/virtinst/urlfetcher.py b/virtinst/urlfetcher.py
+index 76a61339..ba1bd2f5 100644
+--- a/virtinst/urlfetcher.py
++++ b/virtinst/urlfetcher.py
+@@ -26,14 +26,23 @@ import logging
+ import os
+ import re
+ import subprocess
++import sys
+ import tempfile
+-import urllib2
+-import urlparse
+ 
+ import requests
+ 
+ from .osdict import OSDB
+ 
++# pylint: disable=no-name-in-module, import-error
++if sys.version_info[0] == 3:
++    # Python 3
++    from urllib.parse import urlparse
++    from urllib.request import Request, urlopen
++else:
++    # Python 2
++    from urlparse import urlparse
++    from urllib2 import Request, urlopen
++
+ 
+ #########################################################################
+ # Backends for the various URL types we support (http, ftp, nfs, local) #
+@@ -219,7 +228,7 @@ class _FTPURLFetcher(_URLFetcher):
+             return
+ 
+         try:
+-            parsed = urlparse.urlparse(self.location)
++            parsed = urlparse(self.location)
+             self._ftp = ftplib.FTP()
+             self._ftp.connect(parsed.hostname, parsed.port)
+             self._ftp.login()
+@@ -231,11 +240,11 @@ class _FTPURLFetcher(_URLFetcher):
+ 
+     def _grabber(self, url):
+         """
+-        Use urllib2 and ftplib to grab the file
++        Use urllib and ftplib to grab the file
+         """
+-        request = urllib2.Request(url)
+-        urlobj = urllib2.urlopen(request)
+-        size = self._ftp.size(urlparse.urlparse(url)[2])
++        request = Request(url)
++        urlobj = urlopen(request)
++        size = self._ftp.size(urlparse(url)[2])
+         return urlobj, size
+ 
+ 
+-- 
+2.16.2
+

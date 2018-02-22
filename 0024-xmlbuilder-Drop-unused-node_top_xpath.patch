@@ -1,0 +1,44 @@
+From 8819176ad4adc55f19991ac52edaf4f29ae08023 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 7 Feb 2018 15:45:38 -0500
+Subject: [PATCH 24/45] xmlbuilder: Drop unused node_top_xpath
+
+---
+ virtinst/xmlbuilder.py | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index 608ade3c..05dba307 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -726,12 +726,11 @@ class _XMLState(object):
+             raise
+ 
+         self.xml_node = doc.children
+-        self.xml_node.virtinst_node_top_xpath = self._stub_path
+         self.xml_ctx = _make_xml_context(self.xml_node)
+ 
+         # This just stores a reference to our root doc wrapper in
+-        # the root node, so when the doc is autofree'd when the node
+-        # and this xmlstate object are freed
++        # the root node, so the doc is autofree'd only when the node
++        # and this xmlstate object are free'd
+         self._xml_root_doc_ref = _DocCleanupWrapper(doc)
+         self.xml_node.virtinst_root_doc = self._xml_root_doc_ref
+ 
+@@ -767,12 +766,6 @@ class _XMLState(object):
+             return fullpath
+         return fullpath + "/" + xpath.split("/", 2)[2]
+ 
+-    def get_node_top_xpath(self):
+-        """
+-        Return the XML path of the root xml_node
+-        """
+-        return self.xml_node.virtinst_node_top_xpath
+-
+     def get_node_xml(self, ctx):
+         node = _get_xpath_node(ctx, self.fix_relative_xpath("."))
+         if not node:
+-- 
+2.16.2
+

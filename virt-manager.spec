@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 1.5.0
-Release  : 8
+Release  : 9
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.0.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.0.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -28,6 +28,51 @@ BuildRequires : pkgconfig(gtk+-3.0)
 BuildRequires : python-dev
 BuildRequires : python3-dev
 BuildRequires : setuptools
+Patch1: 0001-Replace-ConfigParser-with-configparser.patch
+Patch2: 0002-Wrap-keys-values-in-a-list.patch
+Patch3: 0003-Replace-ipaddr-module-with-ipaddress.patch
+Patch4: 0004-urlfetcher-Python-2-3-compatability-for-urllib.patch
+Patch5: 0005-Convert-long-to-int.patch
+Patch6: 0006-Fix-re-raising-exception.patch
+Patch7: 0007-Replace-Queue-with-queue.patch
+Patch8: 0008-Convert-the-output-of-range-to-list.patch
+Patch9: 0009-python3-compat-python3-strings-have-no-decode.patch
+Patch10: 0010-Use-StringIO-instad-of-BytesIO-in-Py-3.patch
+Patch11: 0011-tests-cli-Handle-UnicodeError-when-logging.patch
+Patch12: 0012-Replace-raw_input-with-input.patch
+Patch13: 0013-urlfetcher-Open-local-files-as-binary.patch
+Patch14: 0014-Drop-python3-compat-imports.patch
+Patch15: 0015-connect-Fix-urllib-usage-on-py3.patch
+Patch16: 0016-Fix-initrdinject-and-urltests-with-py3.patch
+Patch17: 0017-Switch-to-python3-in-script-shebang.patch
+Patch18: 0018-spec-Update-for-python3.patch
+Patch19: 0019-setup-Use-pylint-3.patch
+Patch20: 0020-Fix-last-bits-of-python3-pylint.patch
+Patch21: 0021-Update-docs-to-use-new-setup.py-invocation.patch
+Patch22: 0022-spec-Remove-obsolete-icon-desktop-cache-commands.patch
+Patch23: 0023-xmlbuilder-drop-is_build-monkey-patching.patch
+Patch24: 0024-xmlbuilder-Drop-unused-node_top_xpath.patch
+Patch25: 0025-xmlbuilder-centralize-adding-child-new-child-prop-in.patch
+Patch26: 0026-Drop-__future__-imports-no-longer-needed.patch
+Patch27: 0027-uitests-Silence-noisy-harmless-warnings.patch
+Patch28: 0028-manager-Fix-mem-disk-net-stats-graphs-bz-1543896.patch
+Patch29: 0029-pylint-fix-logging-too-few-args-issue.patch
+Patch30: 0030-tests-virtconvtest-Accumulate-more-errors-before-exi.patch
+Patch31: 0031-virtconv-ovf-convert-to-ElementTree.patch
+Patch32: 0032-Don-t-use-count-for-substring-checking.patch
+Patch33: 0033-xmlbuilder-Remove-unused-code.patch
+Patch34: 0034-capabilities-Move-machine-canonicalizing-to-capsinfo.patch
+Patch35: 0035-Convert-docstrings-to-standard-reStructuredText-para.patch
+Patch36: 0036-xmlbuilder-Remove-more-redundant-xml-state.patch
+Patch37: 0037-xmlbuilder-Move-all-libxml2-interaction-to-a-single-.patch
+Patch38: 0038-xmlbuilder-Move-xpath-string-ops-to-their-own-class.patch
+Patch39: 0039-setup-Add-explicit-error-if-running-with-python2.patch
+Patch40: 0040-xmlbuilder-Abstract-libxml2-API-and-cleanup.patch
+Patch41: 0041-xmlapi-Some-libxml2-simplifications.patch
+Patch42: 0042-tests-xmlparse-Add-qemu-xmlns-tests.patch
+Patch43: 0043-tests-xmlparse-Add-a-roundtrip-metadata-test.patch
+Patch44: 0044-xmlapi-Fix-some-pylint.patch
+Patch45: 0045-xmlbuilder-Order-child-props-before-serializing.patch
 
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
@@ -71,18 +116,66 @@ locales components for the virt-manager package.
 
 %prep
 %setup -q -n virt-manager-1.5.0
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
+%patch19 -p1
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch28 -p1
+%patch29 -p1
+%patch30 -p1
+%patch31 -p1
+%patch32 -p1
+%patch33 -p1
+%patch34 -p1
+%patch35 -p1
+%patch36 -p1
+%patch37 -p1
+%patch38 -p1
+%patch39 -p1
+%patch40 -p1
+%patch41 -p1
+%patch42 -p1
+%patch43 -p1
+%patch44 -p1
+%patch45 -p1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1519330256
-python2 setup.py build -b py2
+export SOURCE_DATE_EPOCH=1519333807
+python3 setup.py build -b py3
 
 %install
 rm -rf %{buildroot}
-python2 -tt setup.py build -b py2 install --root=%{buildroot}
+python3 -tt setup.py build -b py3 install --root=%{buildroot}
+echo ----[ mark ]----
+cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
+echo ----[ mark ]----
 %find_lang virt-manager
 
 %files
@@ -313,6 +406,7 @@ python2 -tt setup.py build -b py2 install --root=%{buildroot}
 /usr/share/virt-manager/virtinst/__pycache__/domainnumatune.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/domainresource.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/domcapabilities.cpython-36.pyc
+/usr/share/virt-manager/virtinst/__pycache__/guest.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/hostkeymap.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/idmap.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/initrdinject.cpython-36.pyc
@@ -334,6 +428,7 @@ python2 -tt setup.py build -b py2 install --root=%{buildroot}
 /usr/share/virt-manager/virtinst/__pycache__/uri.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/urlfetcher.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/util.cpython-36.pyc
+/usr/share/virt-manager/virtinst/__pycache__/xmlapi.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/xmlbuilder.cpython-36.pyc
 /usr/share/virt-manager/virtinst/__pycache__/xmlnsqemu.cpython-36.pyc
 /usr/share/virt-manager/virtinst/capabilities.py
@@ -393,6 +488,7 @@ python2 -tt setup.py build -b py2 install --root=%{buildroot}
 /usr/share/virt-manager/virtinst/uri.py
 /usr/share/virt-manager/virtinst/urlfetcher.py
 /usr/share/virt-manager/virtinst/util.py
+/usr/share/virt-manager/virtinst/xmlapi.py
 /usr/share/virt-manager/virtinst/xmlbuilder.py
 /usr/share/virt-manager/virtinst/xmlnsqemu.py
 

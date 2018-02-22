@@ -1,0 +1,55 @@
+From c4fdd1d56a48fcbb1e28616a91663bbee006a9f9 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 13 Feb 2018 19:16:53 -0500
+Subject: [PATCH 33/45] xmlbuilder: Remove unused code
+
+---
+ virtinst/xmlbuilder.py | 25 -------------------------
+ 1 file changed, 25 deletions(-)
+
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index 2b5e3042..5781cdcd 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -72,23 +72,6 @@ def _make_xml_context(node):
+     return ctx
+ 
+ 
+-def _tuplify_lists(*args):
+-    """
+-    Similar to zip(), but use None if lists aren't long enough, and
+-    don't skip any None list entry
+-    """
+-    args = [util.listify(l) for l in args]
+-    maxlen = max([len(l) for l in args])
+-
+-    ret = []
+-    for idx in range(maxlen):
+-        tup = tuple()
+-        for l in args:
+-            tup += (idx >= len(l) and (None,) or (l[idx],))
+-        ret.append(tup)
+-    return ret
+-
+-
+ def _sanitize_libxml_xml(xml):
+     # Strip starting <?...> line
+     if xml.startswith("<?"):
+@@ -518,14 +501,6 @@ class XMLProperty(property):
+     def _make_xpath(self, xmlbuilder):
+         return xmlbuilder.fix_relative_xpath(self._xpath)
+ 
+-
+-    def _build_node_list(self, xmlbuilder, xpath):
+-        """
+-        Build list of nodes that the passed xpaths reference
+-        """
+-        nodes = _get_xpath_node(xmlbuilder._xmlstate.xml_ctx, xpath)
+-        return util.listify(nodes)
+-
+     def _convert_get_value(self, val):
+         # pylint: disable=redefined-variable-type
+         if self._default_name and val == self._default_name:
+-- 
+2.16.2
+

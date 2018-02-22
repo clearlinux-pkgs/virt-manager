@@ -1,0 +1,49 @@
+From 4c7c45908f6afd4e0edae9923218472d353caa3a Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Fri, 9 Feb 2018 14:02:04 -0500
+Subject: [PATCH 28/45] manager: Fix mem, disk, net stats graphs (bz 1543896)
+
+python2/3 division compat messed this up
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1543896
+---
+ virtManager/domain.py  | 2 +-
+ virtManager/manager.py | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/virtManager/domain.py b/virtManager/domain.py
+index ed94cf16..6d3dac2d 100644
+--- a/virtManager/domain.py
++++ b/virtManager/domain.py
+@@ -1984,7 +1984,7 @@ class vmmDomain(vmmLibvirtObject):
+         except libvirt.libvirtError as err:
+             logging.error("Error reading mem stats: %s", err)
+ 
+-        pcentCurrMem = (curmem // float(totalmem)) * 100
++        pcentCurrMem = (curmem / float(totalmem)) * 100
+         pcentCurrMem = max(0.0, min(pcentCurrMem, 100.0))
+ 
+         return pcentCurrMem, curmem
+diff --git a/virtManager/manager.py b/virtManager/manager.py
+index d6640fbc..d38fc4e4 100644
+--- a/virtManager/manager.py
++++ b/virtManager/manager.py
+@@ -1068,7 +1068,7 @@ class vmmManager(vmmGObjectUI):
+             return
+ 
+         d1, d2 = obj.disk_io_vectors(GRAPH_LEN, self.max_disk_rate)
+-        data = [(x + y) // 2 for x, y in zip(d1, d2)]
++        data = [(x + y) / 2 for x, y in zip(d1, d2)]
+         cell.set_property('data_array', data)
+ 
+     def network_traffic_img(self, column_ignore, cell, model, _iter, data):
+@@ -1077,5 +1077,5 @@ class vmmManager(vmmGObjectUI):
+             return
+ 
+         d1, d2 = obj.network_traffic_vectors(GRAPH_LEN, self.max_net_rate)
+-        data = [(x + y) // 2 for x, y in zip(d1, d2)]
++        data = [(x + y) / 2 for x, y in zip(d1, d2)]
+         cell.set_property('data_array', data)
+-- 
+2.16.2
+

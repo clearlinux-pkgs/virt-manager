@@ -1,0 +1,43 @@
+From 48037fcf6f37bb598fa442929162acc5352bf14a Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 6 Feb 2018 18:45:13 -0500
+Subject: [PATCH 22/45] spec: Remove obsolete icon/desktop cache commands
+
+Handled in Fedora for a while now
+---
+ virt-manager.spec.in | 19 -------------------
+ 1 file changed, 19 deletions(-)
+
+diff --git a/virt-manager.spec.in b/virt-manager.spec.in
+index fe8c9499..b880f2f5 100644
+--- a/virt-manager.spec.in
++++ b/virt-manager.spec.in
+@@ -164,25 +164,6 @@ done
+ rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
+ 
+ 
+-%post
+-/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+-/usr/bin/update-desktop-database &> /dev/null || :
+-
+-
+-%postun
+-if [ $1 -eq 0 ] ; then
+-    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+-    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+-    /usr/bin/glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+-fi
+-/usr/bin/update-desktop-database &> /dev/null || :
+-
+-
+-%posttrans
+-/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+-/usr/bin/glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+-
+-
+ %files
+ %doc README.md COPYING NEWS.md
+ %{_bindir}/%{name}
+-- 
+2.16.2
+

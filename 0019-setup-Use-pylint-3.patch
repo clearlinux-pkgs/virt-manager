@@ -1,0 +1,36 @@
+From de791136c18339d196164e8022818b6b72d20eb8 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 6 Feb 2018 18:55:26 -0500
+Subject: [PATCH 19/45] setup: Use pylint-3
+
+---
+ setup.py | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index 96d0fb59..85d7f6e8 100755
+--- a/setup.py
++++ b/setup.py
+@@ -575,17 +575,14 @@ class CheckPylint(distutils.core.Command):
+         exclude = ["virtinst/progress.py"]
+ 
+         print("running pycodestyle")
+-        cmd = "pycodestyle "
++        cmd = "pycodestyle-3 "
+         cmd += "--config tests/pycodestyle.cfg "
+         cmd += "--exclude %s " % ",".join(exclude)
+         cmd += " ".join(files)
+         os.system(cmd)
+ 
+         print("running pylint")
+-        if os.path.exists("/usr/bin/pylint-2"):
+-            cmd = "pylint-2 "
+-        else:
+-            cmd = "pylint "
++        cmd = "pylint-3 "
+         if self.jobs:
+             cmd += "--jobs=%d " % self.jobs
+         cmd += "--rcfile tests/pylint.cfg "
+-- 
+2.16.2
+

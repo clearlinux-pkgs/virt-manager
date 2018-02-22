@@ -4,3 +4,4 @@ glib-bin
 ipaddr-python
 libvirt-python
 libosinfo
+intltool

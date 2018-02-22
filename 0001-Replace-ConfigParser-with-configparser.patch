@@ -1,0 +1,120 @@
+From 810ee092924083a86d98a6e18ca826f5fa4dae72 Mon Sep 17 00:00:00 2001
+From: Radostin Stoyanov <rstoyanov1@gmail.com>
+Date: Wed, 11 Oct 2017 12:35:39 +0100
+Subject: [PATCH 01/45] Replace ConfigParser with configparser
+
+The ConfigParser module has been renamed to configparser in
+Python 3. [1] Backport of this changes is also available for
+Python 2. [2]
+
+[1] https://docs.python.org/2/library/configparser.html
+[2] https://pypi.python.org/pypi/configparser/3.2.0r3
+---
+ tests/test_urls.py     |  4 ++--
+ virtcli/cliconfig.py   |  6 +++---
+ virtinst/urlfetcher.py | 14 +++++++-------
+ 3 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/tests/test_urls.py b/tests/test_urls.py
+index 6fc09ce6..a477f079 100644
+--- a/tests/test_urls.py
++++ b/tests/test_urls.py
+@@ -234,8 +234,8 @@ class URLTests(unittest.TestCase):
+ 
+ 
+ def _make_tests():
+-    import ConfigParser
+-    cfg = ConfigParser.ConfigParser()
++    import configparser
++    cfg = configparser.ConfigParser()
+     cfg.read("tests/test_urls.ini")
+ 
+     manualpath = "tests/test_urls_manual.ini"
+diff --git a/virtcli/cliconfig.py b/virtcli/cliconfig.py
+index b2446b27..33b923cf 100644
+--- a/virtcli/cliconfig.py
++++ b/virtcli/cliconfig.py
+@@ -21,11 +21,11 @@
+ Configuration variables that can be set at build time
+ """
+ 
+-import ConfigParser
++import configparser
+ import os
+ 
+ 
+-_cfg = ConfigParser.ConfigParser()
++_cfg = configparser.ConfigParser()
+ _filepath = os.path.abspath(__file__)
+ _srcdir = os.path.abspath(os.path.join(os.path.dirname(_filepath), ".."))
+ _cfgpath = os.path.join(os.path.dirname(_filepath), "cli.cfg")
+@@ -46,7 +46,7 @@ def _get_param(name, default):
+         return default
+     try:
+         return _cfg.get("config", name)
+-    except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
++    except (configparser.NoOptionError, configparser.NoSectionError):
+         return default
+ 
+ 
+diff --git a/virtinst/urlfetcher.py b/virtinst/urlfetcher.py
+index d765e135..850d0f1b 100644
+--- a/virtinst/urlfetcher.py
++++ b/virtinst/urlfetcher.py
+@@ -19,7 +19,7 @@
+ # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ # MA 02110-1301 USA.
+ 
+-import ConfigParser
++import configparser
+ import ftplib
+ import io
+ import logging
+@@ -393,14 +393,14 @@ def _grabTreeinfo(fetcher):
+         return None
+ 
+     try:
+-        treeinfo = ConfigParser.SafeConfigParser()
++        treeinfo = configparser.SafeConfigParser()
+         treeinfo.read(tmptreeinfo)
+     finally:
+         os.unlink(tmptreeinfo)
+ 
+     try:
+         treeinfo.get("general", "family")
+-    except ConfigParser.NoSectionError:
++    except configparser.NoSectionError:
+         logging.debug("Did not find 'family' section in treeinfo")
+         return None
+ 
+@@ -601,7 +601,7 @@ class Distro(object):
+             try:
+                 kernelpath = self._getTreeinfoMedia("kernel")
+                 initrdpath = self._getTreeinfoMedia("initrd")
+-            except ConfigParser.NoSectionError:
++            except configparser.NoSectionError:
+                 pass
+ 
+         if not kernelpath or not initrdpath:
+@@ -737,15 +737,15 @@ class GenericDistro(Distro):
+                     self._valid_kernel_path = (
+                         self._getTreeinfoMedia("kernel"),
+                         self._getTreeinfoMedia("initrd"))
+-                except (ConfigParser.NoSectionError,
+-                        ConfigParser.NoOptionError) as e:
++                except (configparser.NoSectionError,
++                        configparser.NoOptionError) as e:
+                     logging.debug(e)
+ 
+             if self.treeinfo.has_section(isoSection):
+                 try:
+                     self._valid_iso_path = self.treeinfo.get(isoSection,
+                                                              "boot.iso")
+-                except ConfigParser.NoOptionError as e:
++                except configparser.NoOptionError as e:
+                     logging.debug(e)
+ 
+         if self.type == "xen":
+-- 
+2.16.2
+

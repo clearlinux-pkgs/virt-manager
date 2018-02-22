@@ -1,0 +1,99 @@
+From ddba9c1702cfbb2e94ad23799b9c4a9f0e70809a Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 27 Jan 2018 15:46:39 -0500
+Subject: [PATCH 17/45] Switch to python3 in script shebang
+
+Signed-off-by: Cole Robinson <crobinso@redhat.com>
+---
+ setup.py             | 2 +-
+ tests/magicuri       | 2 +-
+ tests/test_inject.py | 1 -
+ virt-clone           | 2 +-
+ virt-convert         | 2 +-
+ virt-install         | 2 +-
+ virt-manager         | 2 +-
+ virt-xml             | 2 +-
+ 8 files changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index 1ae6a223..96d0fb59 100755
+--- a/setup.py
++++ b/setup.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/env python3
+ # Copyright (C) 2013, 2014 Red Hat, Inc.
+ 
+ import glob
+diff --git a/tests/magicuri b/tests/magicuri
+index 0dc810ec..d771547c 100755
+--- a/tests/magicuri
++++ b/tests/magicuri
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python3
+ 
+ import argparse
+ import os
+diff --git a/tests/test_inject.py b/tests/test_inject.py
+index 94ab114e..f881c0ac 100755
+--- a/tests/test_inject.py
++++ b/tests/test_inject.py
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python2
+ # Copyright (C) 2013, 2014 Red Hat, Inc.
+ 
+ from __future__ import print_function
+diff --git a/virt-clone b/virt-clone
+index 12f0d062..0baee89a 100755
+--- a/virt-clone
++++ b/virt-clone
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/env python3
+ #
+ # Copyright(c) FUJITSU Limited 2007.
+ #
+diff --git a/virt-convert b/virt-convert
+index c42f2ef7..6e54b90e 100755
+--- a/virt-convert
++++ b/virt-convert
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/env python3
+ #
+ # Copyright 2008, 2013, 2014  Red Hat, Inc.
+ # Joey Boggs <jboggs@redhat.com>
+diff --git a/virt-install b/virt-install
+index 4163d0fe..f5223d70 100755
+--- a/virt-install
++++ b/virt-install
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/env python3
+ #
+ # Copyright 2005-2014 Red Hat, Inc.
+ #
+diff --git a/virt-manager b/virt-manager
+index 4ba10fa5..ea860dbc 100755
+--- a/virt-manager
++++ b/virt-manager
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/env python3
+ #
+ # Copyright (C) 2006, 2014 Red Hat, Inc.
+ # Copyright (C) 2006 Daniel P. Berrange <berrange@redhat.com>
+diff --git a/virt-xml b/virt-xml
+index b7d78fe2..e0495029 100755
+--- a/virt-xml
++++ b/virt-xml
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/env python3
+ #
+ # Copyright 2013-2014 Red Hat, Inc.
+ # Cole Robinson <crobinso@redhat.com>
+-- 
+2.16.2
+

@@ -1,0 +1,209 @@
+From 8917305a6e1dbaf1090334ad7b510a2376e47319 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 13 Feb 2018 19:04:08 -0500
+Subject: [PATCH 32/45] Don't use count() for substring checking
+
+Use the idiomatic 'X in Y'
+---
+ tests/clitest.py       | 16 ++++++++--------
+ tests/test_urls.py     |  2 +-
+ virtinst/cli.py        |  2 +-
+ virtinst/cloner.py     |  2 +-
+ virtinst/device.py     |  4 ++--
+ virtinst/hostkeymap.py |  4 ++--
+ virtinst/nodedev.py    |  8 ++++----
+ virtinst/xmlbuilder.py |  8 ++++----
+ 8 files changed, 23 insertions(+), 23 deletions(-)
+
+diff --git a/tests/clitest.py b/tests/clitest.py
+index 2edc011a..abdd9b92 100644
+--- a/tests/clitest.py
++++ b/tests/clitest.py
+@@ -156,13 +156,13 @@ class Command(object):
+ 
+             exc = ""
+             try:
+-                if app.count("virt-install"):
++                if "virt-install" in app:
+                     ret = virtinstall.main(conn=conn)
+-                elif app.count("virt-clone"):
++                elif "virt-clone" in app:
+                     ret = virtclone.main(conn=conn)
+-                elif app.count("virt-convert"):
++                elif "virt-convert" in app:
+                     ret = virtconvert.main(conn=conn)
+-                elif app.count("virt-xml"):
++                elif "virt-xml" in app:
+                     ret = virtxml.main(conn=conn)
+             except SystemExit as sys_e:
+                 ret = sys_e.code
+@@ -316,13 +316,13 @@ class App(object):
+ 
+         if iscompare and auto_printarg:
+             if self.appname == "virt-install":
+-                if (not cli.count("--print-xml") and
+-                    not cli.count("--print-step") and
+-                    not cli.count("--quiet")):
++                if ("--print-xml" not in cli and
++                    "--print-step" not in cli and
++                    "--quiet" not in cli):
+                     args += " --print-step all"
+ 
+             elif self.appname == "virt-clone":
+-                if not cli.count("--print-xml"):
++                if "--print-xml" not in cli:
+                     args += " --print-xml"
+ 
+         return args
+diff --git a/tests/test_urls.py b/tests/test_urls.py
+index 3f595a53..3864f776 100644
+--- a/tests/test_urls.py
++++ b/tests/test_urls.py
+@@ -118,7 +118,7 @@ def _storeForDistro(fetcher, guest):
+         try:
+             return urlfetcher.getDistroStore(guest, fetcher)
+         except Exception as e:
+-            if str(e).count("502"):
++            if "502" in str(e):
+                 logging.debug("Caught proxy error: %s", str(e))
+                 time.sleep(.5)
+                 continue
+diff --git a/virtinst/cli.py b/virtinst/cli.py
+index e001e02d..2bcd8855 100644
+--- a/virtinst/cli.py
++++ b/virtinst/cli.py
+@@ -976,7 +976,7 @@ def parse_optstr_tuples(optstr):
+         if not opt:
+             continue
+ 
+-        if opt.count("="):
++        if "=" in opt:
+             cliname, val = opt.split("=", 1)
+         else:
+             cliname = opt
+diff --git a/virtinst/cloner.py b/virtinst/cloner.py
+index c4030ddf..ede819db 100644
+--- a/virtinst/cloner.py
++++ b/virtinst/cloner.py
+@@ -493,7 +493,7 @@ class Cloner(object):
+         # If the suffix is greater than 7 characters, assume it isn't
+         # a file extension and is part of the disk name, at which point
+         # just stick '-clone' on the end.
+-        if origpath.count(".") and len(origpath.rsplit(".", 1)[1]) <= 7:
++        if "." in origpath and len(origpath.rsplit(".", 1)[1]) <= 7:
+             path, suffix = origpath.rsplit(".", 1)
+             suffix = "." + suffix
+ 
+diff --git a/virtinst/device.py b/virtinst/device.py
+index 7118a162..37d9364b 100644
+--- a/virtinst/device.py
++++ b/virtinst/device.py
+@@ -59,12 +59,12 @@ class VirtualDeviceAddress(XMLBuilder):
+         if addrstr is None:
+             return
+ 
+-        if addrstr.count(":") in [1, 2] and addrstr.count("."):
++        if addrstr.count(":") in [1, 2] and "." in addrstr:
+             self.type = self.ADDRESS_TYPE_PCI
+             addrstr, self.function = addrstr.split(".", 1)
+             addrstr, self.slot = addrstr.rsplit(":", 1)
+             self.domain = "0"
+-            if addrstr.count(":"):
++            if ":" in addrstr:
+                 self.domain, self.bus = addrstr.split(":", 1)
+         elif addrstr == "spapr-vio":
+             self.type = self.ADDRESS_TYPE_SPAPR_VIO
+diff --git a/virtinst/hostkeymap.py b/virtinst/hostkeymap.py
+index 6ab474fb..9f8360d0 100644
+--- a/virtinst/hostkeymap.py
++++ b/virtinst/hostkeymap.py
+@@ -78,9 +78,9 @@ def _sysconfig_keyboard(f):
+             re.search("KEYTABLE", s) is not None or
+            (re.search("KEYBOARD", s) is not None and
+             re.search("KEYBOARDTYPE", s) is None)):
+-            if s.count('"'):
++            if '"' in s:
+                 delim = '"'
+-            elif s.count('='):
++            elif '=' in s:
+                 delim = '='
+             else:
+                 continue
+diff --git a/virtinst/nodedev.py b/virtinst/nodedev.py
+index f29dda87..e3080d69 100644
+--- a/virtinst/nodedev.py
++++ b/virtinst/nodedev.py
+@@ -345,11 +345,11 @@ def _AddressStringToHostdev(conn, addrstr):
+ 
+     try:
+         # Determine addrstr type
+-        if addrstr.count(":") in [1, 2] and addrstr.count("."):
++        if addrstr.count(":") in [1, 2] and "." in addrstr:
+             addrstr, func = addrstr.split(".", 1)
+             addrstr, slot = addrstr.rsplit(":", 1)
+             domain = "0"
+-            if addrstr.count(":"):
++            if ":" in addrstr:
+                 domain, bus = addrstr.split(":", 1)
+             else:
+                 bus = addrstr
+@@ -360,14 +360,14 @@ def _AddressStringToHostdev(conn, addrstr):
+             hostdev.slot = "0x%.2X" % int(slot, 16)
+             hostdev.bus = "0x%.2X" % int(bus, 16)
+ 
+-        elif addrstr.count(":"):
++        elif ":" in addrstr:
+             vendor, product = addrstr.split(":")
+ 
+             hostdev.type = "usb"
+             hostdev.vendor = "0x%.4X" % int(vendor, 16)
+             hostdev.product = "0x%.4X" % int(product, 16)
+ 
+-        elif addrstr.count("."):
++        elif "." in addrstr:
+             bus, device = addrstr.split(".", 1)
+ 
+             hostdev.type = "usb"
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index e79ad830..2b5e3042 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -93,7 +93,7 @@ def _sanitize_libxml_xml(xml):
+     # Strip starting <?...> line
+     if xml.startswith("<?"):
+         ignore, xml = xml.split("\n", 1)
+-    if not xml.endswith("\n") and xml.count("\n"):
++    if not xml.endswith("\n") and "\n" in xml:
+         xml += "\n"
+     return xml
+ 
+@@ -116,7 +116,7 @@ def _add_pretty_child(parentnode, newnode):
+     whitespace and nicely format the result.
+     """
+     def node_is_text(n):
+-        return bool(n and n.type == "text" and not n.content.count("<"))
++        return bool(n and n.type == "text" and "<" not in n.content)
+ 
+     def prevSibling(node):
+         parent = node.get_parent()
+@@ -266,7 +266,7 @@ def _remove_xpath_node(ctx, xpath, dofree=True):
+         is_orig = (curxpath == xpath)
+         node = _get_xpath_node(ctx, curxpath)
+ 
+-        if curxpath.count("/"):
++        if "/" in curxpath:
+             nextxpath, ignore = curxpath.rsplit("/", 1)
+         else:
+             nextxpath = None
+@@ -289,7 +289,7 @@ def _remove_xpath_node(ctx, xpath, dofree=True):
+ 
+         # Look for preceding whitespace and remove it
+         white = node.get_prev()
+-        if white and white.type == "text" and not white.content.count("<"):
++        if white and white.type == "text" and "<" not in white.content:
+             white.unlinkNode()
+             white.freeNode()
+ 
+-- 
+2.16.2
+
