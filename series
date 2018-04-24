@@ -43,3 +43,4 @@
 0043-tests-xmlparse-Add-a-roundtrip-metadata-test.patch
 0044-xmlapi-Fix-some-pylint.patch
 0045-xmlbuilder-Order-child-props-before-serializing.patch
+do-not-set-cursor.patch

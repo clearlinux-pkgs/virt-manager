@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 1.5.0
-Release  : 9
+Release  : 10
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.0.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.0.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -73,6 +73,7 @@ Patch42: 0042-tests-xmlparse-Add-qemu-xmlns-tests.patch
 Patch43: 0043-tests-xmlparse-Add-a-roundtrip-metadata-test.patch
 Patch44: 0044-xmlapi-Fix-some-pylint.patch
 Patch45: 0045-xmlbuilder-Order-child-props-before-serializing.patch
+Patch46: do-not-set-cursor.patch
 
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
@@ -161,13 +162,14 @@ locales components for the virt-manager package.
 %patch43 -p1
 %patch44 -p1
 %patch45 -p1
+%patch46 -p1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1519333807
+export SOURCE_DATE_EPOCH=1524600099
 python3 setup.py build -b py3
 
 %install
