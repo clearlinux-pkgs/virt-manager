@@ -44,3 +44,4 @@
 0044-xmlapi-Fix-some-pylint.patch
 0045-xmlbuilder-Order-child-props-before-serializing.patch
 do-not-set-cursor.patch
+use-iso-info-command.patch

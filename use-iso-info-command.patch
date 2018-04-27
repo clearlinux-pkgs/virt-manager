@@ -1,0 +1,66 @@
+From 60ee4e205290107f8f068322473dbd924aa703ec Mon Sep 17 00:00:00 2001
+From: Jose Lamego <jose.a.lamego@intel.com>
+Date: Fri, 27 Apr 2018 10:00:54 -0500
+Subject: [PATCH] use iso-info command
+
+iso files cannot be handled due to isoinfo command
+not found.
+
+This change uses iso-info command instead.
+
+Signed-off-by: Jose Lamego <jose.a.lamego@intel.com>
+---
+ tests/clitest.py       |  2 +-
+ virtinst/urlfetcher.py | 12 ++++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/tests/clitest.py b/tests/clitest.py
+index 18513597..31eb0b63 100644
+--- a/tests/clitest.py
++++ b/tests/clitest.py
+@@ -801,7 +801,7 @@ c.add_compare("--arch s390x --machine s390-ccw-virtio --connect %(URI-KVM-S390X-
+ c.add_compare("--connect %(URI-KVM-SESSION)s --disk size=8 --os-variant fedora21 --cdrom %(EXISTIMG1)s", "kvm-session-defaults")
+ 
+ # misc KVM config tests
+-c.add_compare("--disk none --location %(EXISTIMG3)s --nonetworks", "location-iso", skip_check=not find_executable("isoinfo"))  # Using --location iso mounting
++c.add_compare("--disk none --location %(EXISTIMG3)s --nonetworks", "location-iso", skip_check=not find_executable("iso-info"))  # Using --location iso mounting
+ c.add_compare("--disk none --location nfs:example.com/fake --nonetworks", "location-nfs")  # Using --location nfs
+ c.add_compare("--disk %(EXISTIMG1)s --pxe --os-variant rhel6.4", "kvm-rhel6")  # RHEL6 defaults
+ c.add_compare("--disk %(EXISTIMG1)s --pxe --os-variant rhel7.0", "kvm-rhel7")  # RHEL7 defaults
+diff --git a/virtinst/urlfetcher.py b/virtinst/urlfetcher.py
+index d765e135..bc94698e 100644
+--- a/virtinst/urlfetcher.py
++++ b/virtinst/urlfetcher.py
+@@ -338,23 +338,23 @@ class _ISOURLFetcher(_URLFetcher):
+ 
+     def _grabber(self, url):
+         """
+-        Use isoinfo to grab the file
++        Use iso-info to grab the file
+         """
+-        cmd = ["isoinfo", "-J", "-i", self.location, "-x", url]
++        cmd = ["iso-info", "-i", self.location, "-x", url]
+ 
+-        logging.debug("Running isoinfo: %s", cmd)
++        logging.debug("Running iso-info: %s", cmd)
+         output = subprocess.check_output(cmd)
+ 
+         return io.BytesIO(output), len(output)
+ 
+     def _hasFile(self, url):
+         """
+-        Use isoinfo to list and search for the file
++        Use iso-info to list and search for the file
+         """
+         if not self._cache_file_list:
+-            cmd = ["isoinfo", "-J", "-i", self.location, "-f"]
++            cmd = ["iso-info", "-i", self.location, "-f"]
+ 
+-            logging.debug("Running isoinfo: %s", cmd)
++            logging.debug("Running iso-info: %s", cmd)
+             output = subprocess.check_output(cmd)
+ 
+             self._cache_file_list = output.splitlines(False)
+-- 
+2.17.0
+
