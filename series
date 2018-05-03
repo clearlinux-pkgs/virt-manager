@@ -25,7 +25,6 @@
 0025-xmlbuilder-centralize-adding-child-new-child-prop-in.patch
 0026-Drop-__future__-imports-no-longer-needed.patch
 0027-uitests-Silence-noisy-harmless-warnings.patch
-0028-manager-Fix-mem-disk-net-stats-graphs-bz-1543896.patch
 0029-pylint-fix-logging-too-few-args-issue.patch
 0030-tests-virtconvtest-Accumulate-more-errors-before-exi.patch
 0031-virtconv-ovf-convert-to-ElementTree.patch
@@ -37,11 +36,8 @@
 0037-xmlbuilder-Move-all-libxml2-interaction-to-a-single-.patch
 0038-xmlbuilder-Move-xpath-string-ops-to-their-own-class.patch
 0039-setup-Add-explicit-error-if-running-with-python2.patch
-0040-xmlbuilder-Abstract-libxml2-API-and-cleanup.patch
-0041-xmlapi-Some-libxml2-simplifications.patch
 0042-tests-xmlparse-Add-qemu-xmlns-tests.patch
 0043-tests-xmlparse-Add-a-roundtrip-metadata-test.patch
-0044-xmlapi-Fix-some-pylint.patch
 0045-xmlbuilder-Order-child-props-before-serializing.patch
 do-not-set-cursor.patch
 use-iso-info-command.patch
