@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 1.5.1
-Release  : 13
+Release  : 14
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -164,7 +164,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1525367532
+export SOURCE_DATE_EPOCH=1526306573
 python3 setup.py build -b py3
 
 %install
@@ -188,6 +188,7 @@ echo ----[ mark ]----
 
 %files data
 %defattr(-,root,root,-)
+%exclude /usr/share/icons/hicolor/icon-theme.cache
 /usr/share/GConf/gsettings/org.virt-manager.virt-manager.convert
 /usr/share/appdata/virt-manager.appdata.xml
 /usr/share/applications/virt-manager.desktop
@@ -199,7 +200,6 @@ echo ----[ mark ]----
 /usr/share/icons/hicolor/256x256/apps/virt-manager.png
 /usr/share/icons/hicolor/32x32/apps/virt-manager.png
 /usr/share/icons/hicolor/48x48/apps/virt-manager.png
-/usr/share/icons/hicolor/icon-theme.cache
 /usr/share/virt-manager/icons/hicolor/16x16/actions/icon_console.png
 /usr/share/virt-manager/icons/hicolor/16x16/actions/vm_new.png
 /usr/share/virt-manager/icons/hicolor/22x22/actions/icon_console.png
