@@ -27,7 +27,7 @@ BuildRequires : libvirt-python
 BuildRequires : pbr
 BuildRequires : pip
 BuildRequires : pkgconfig(gtk+-3.0)
-BuildRequires : python-dev
+
 BuildRequires : python3-dev
 BuildRequires : setuptools
 Patch1: 0001-Replace-ConfigParser-with-configparser.patch
