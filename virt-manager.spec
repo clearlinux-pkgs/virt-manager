@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 1.5.1
-Release  : 15
+Release  : 16
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -12,8 +12,9 @@ Group    : Development/Tools
 License  : GPL-2.0 GPL-2.0+
 Requires: virt-manager-bin
 Requires: virt-manager-data
+Requires: virt-manager-license
 Requires: virt-manager-locales
-Requires: virt-manager-doc
+Requires: virt-manager-man
 Requires: ipaddr-python
 Requires: libosinfo
 Requires: libvirt-python
@@ -84,6 +85,8 @@ management API.
 Summary: bin components for the virt-manager package.
 Group: Binaries
 Requires: virt-manager-data
+Requires: virt-manager-license
+Requires: virt-manager-man
 
 %description bin
 bin components for the virt-manager package.
@@ -97,12 +100,12 @@ Group: Data
 data components for the virt-manager package.
 
 
-%package doc
-Summary: doc components for the virt-manager package.
-Group: Documentation
+%package license
+Summary: license components for the virt-manager package.
+Group: Default
 
-%description doc
-doc components for the virt-manager package.
+%description license
+license components for the virt-manager package.
 
 
 %package locales
@@ -111,6 +114,14 @@ Group: Default
 
 %description locales
 locales components for the virt-manager package.
+
+
+%package man
+Summary: man components for the virt-manager package.
+Group: Default
+
+%description man
+man components for the virt-manager package.
 
 
 %prep
@@ -164,11 +175,13 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1526306573
+export SOURCE_DATE_EPOCH=1529028082
 python3 setup.py build -b py3
 
 %install
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/doc/virt-manager
+cp COPYING %{buildroot}/usr/share/doc/virt-manager/COPYING
 python3 -tt setup.py build -b py3 install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
@@ -188,11 +201,11 @@ echo ----[ mark ]----
 
 %files data
 %defattr(-,root,root,-)
+%exclude /usr/share/glib-2.0/schemas/gschemas.compiled
 %exclude /usr/share/icons/hicolor/icon-theme.cache
 /usr/share/GConf/gsettings/org.virt-manager.virt-manager.convert
 /usr/share/appdata/virt-manager.appdata.xml
 /usr/share/applications/virt-manager.desktop
-/usr/share/glib-2.0/schemas/gschemas.compiled
 /usr/share/glib-2.0/schemas/org.virt-manager.virt-manager.gschema.xml
 /usr/share/icons/hicolor/16x16/apps/virt-manager.png
 /usr/share/icons/hicolor/22x22/apps/virt-manager.png
@@ -487,9 +500,17 @@ echo ----[ mark ]----
 /usr/share/virt-manager/virtinst/xmlbuilder.py
 /usr/share/virt-manager/virtinst/xmlnsqemu.py
 
-%files doc
+%files license
 %defattr(-,root,root,-)
-%doc /usr/share/man/man1/*
+/usr/share/doc/virt-manager/COPYING
+
+%files man
+%defattr(-,root,root,-)
+/usr/share/man/man1/virt-clone.1
+/usr/share/man/man1/virt-convert.1
+/usr/share/man/man1/virt-install.1
+/usr/share/man/man1/virt-manager.1
+/usr/share/man/man1/virt-xml.1
 
 %files locales -f virt-manager.lang
 %defattr(-,root,root,-)

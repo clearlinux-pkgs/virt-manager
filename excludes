@@ -1,3 +1,4 @@
 # This file contains the output files that need %exclude. Full path
 # names, one per line.
 /usr/share/icons/hicolor/icon-theme.cache
+/usr/share/glib-2.0/schemas/gschemas.compiled
