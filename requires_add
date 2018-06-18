@@ -2,5 +2,6 @@
 # picked up automatically. One name per line, no whitespace.
 ipaddr-python
 libvirt-python
+libxml2-python
 libosinfo
 osinfo-db-tools
