@@ -5,3 +5,4 @@ ipaddr-python
 libvirt-python
 libosinfo
 intltool
+requests

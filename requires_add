@@ -5,3 +5,4 @@ libvirt-python
 libxml2-python
 libosinfo
 osinfo-db-tools
+requests

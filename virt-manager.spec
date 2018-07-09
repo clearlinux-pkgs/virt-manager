@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 1.5.1
-Release  : 18
+Release  : 19
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -20,6 +20,7 @@ Requires: libosinfo
 Requires: libvirt-python
 Requires: libxml2-python
 Requires: osinfo-db-tools
+Requires: requests
 BuildRequires : glib-bin
 BuildRequires : intltool
 BuildRequires : ipaddr-python
@@ -29,6 +30,7 @@ BuildRequires : pbr
 BuildRequires : pip
 BuildRequires : pkgconfig(gtk+-3.0)
 BuildRequires : python3-dev
+BuildRequires : requests
 BuildRequires : setuptools
 Patch1: 0001-Replace-ConfigParser-with-configparser.patch
 Patch2: 0002-Wrap-keys-values-in-a-list.patch
@@ -175,7 +177,8 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1529353863
+export SOURCE_DATE_EPOCH=1531171438
+find -name "*pyx" | xargs touch ||:
 python3 setup.py build -b py3
 
 %install
@@ -268,56 +271,6 @@ echo ----[ mark ]----
 /usr/share/virt-manager/virt-manager
 /usr/share/virt-manager/virt-xml
 /usr/share/virt-manager/virtManager/__init__.py
-/usr/share/virt-manager/virtManager/__pycache__/__init__.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/about.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/addhardware.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/addstorage.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/asyncjob.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/baseclass.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/choosecd.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/clone.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/config.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/connect.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/connectauth.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/connection.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/console.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/create.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/createinterface.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/createnet.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/createpool.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/createvol.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/delete.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/details.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/domain.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/engine.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/error.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/fsdetails.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/gfxdetails.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/graphwidgets.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/host.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/inspection.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/interface.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/keyring.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/libvirtobject.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/manager.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/mediacombo.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/migrate.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/module_trace.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/netlist.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/network.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/nodedev.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/packageutils.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/preferences.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/serialcon.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/snapshots.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/sshtunnels.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/storagebrowse.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/storagelist.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/storagepool.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/systray.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/uiutil.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/viewers.cpython-36.pyc
-/usr/share/virt-manager/virtManager/__pycache__/vmmenu.cpython-36.pyc
 /usr/share/virt-manager/virtManager/about.py
 /usr/share/virt-manager/virtManager/addhardware.py
 /usr/share/virt-manager/virtManager/addstorage.py
@@ -368,78 +321,12 @@ echo ----[ mark ]----
 /usr/share/virt-manager/virtManager/viewers.py
 /usr/share/virt-manager/virtManager/vmmenu.py
 /usr/share/virt-manager/virtcli/__init__.py
-/usr/share/virt-manager/virtcli/__pycache__/__init__.cpython-36.pyc
-/usr/share/virt-manager/virtcli/__pycache__/cliconfig.cpython-36.pyc
 /usr/share/virt-manager/virtcli/cliconfig.py
 /usr/share/virt-manager/virtconv/__init__.py
-/usr/share/virt-manager/virtconv/__pycache__/__init__.cpython-36.pyc
-/usr/share/virt-manager/virtconv/__pycache__/formats.cpython-36.pyc
-/usr/share/virt-manager/virtconv/__pycache__/ovf.cpython-36.pyc
-/usr/share/virt-manager/virtconv/__pycache__/vmx.cpython-36.pyc
 /usr/share/virt-manager/virtconv/formats.py
 /usr/share/virt-manager/virtconv/ovf.py
 /usr/share/virt-manager/virtconv/vmx.py
 /usr/share/virt-manager/virtinst/__init__.py
-/usr/share/virt-manager/virtinst/__pycache__/__init__.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/capabilities.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/cli.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/clock.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/cloner.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/connection.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/cpu.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/cputune.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/device.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/deviceaudio.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicechar.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicecontroller.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicedisk.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicefilesystem.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicegraphics.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicehostdev.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/deviceinput.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/deviceinterface.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicememballoon.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicememory.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicepanic.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/deviceredirdev.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicerng.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicesmartcard.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicetpm.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicevideo.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/devicewatchdog.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/diskbackend.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/distroinstaller.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/domainblkiotune.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/domainfeatures.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/domainmemorybacking.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/domainmemorytune.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/domainnumatune.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/domainresource.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/domcapabilities.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/guest.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/hostkeymap.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/idmap.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/initrdinject.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/installer.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/interface.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/kernelupload.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/network.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/nodedev.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/osdict.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/osxml.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/pm.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/pollhelpers.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/progress.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/seclabel.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/snapshot.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/storage.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/support.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/sysinfo.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/uri.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/urlfetcher.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/util.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/xmlbuilder.cpython-36.pyc
-/usr/share/virt-manager/virtinst/__pycache__/xmlnsqemu.cpython-36.pyc
 /usr/share/virt-manager/virtinst/capabilities.py
 /usr/share/virt-manager/virtinst/cli.py
 /usr/share/virt-manager/virtinst/clock.py
