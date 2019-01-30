@@ -1,8 +1,9 @@
 # This file contains additional runtime requirements that did not get
 # picked up automatically. One name per line, no whitespace.
 ipaddr-python
+libosinfo
 libvirt-python
 libxml2-python
-libosinfo
 osinfo-db-tools
+pygobject-python
 requests
