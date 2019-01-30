@@ -4,34 +4,32 @@
 #
 Name     : virt-manager
 Version  : 1.5.1
-Release  : 19
+Release  : 20
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
 Group    : Development/Tools
 License  : GPL-2.0 GPL-2.0+
-Requires: virt-manager-bin
-Requires: virt-manager-data
-Requires: virt-manager-license
-Requires: virt-manager-locales
-Requires: virt-manager-man
+Requires: virt-manager-bin = %{version}-%{release}
+Requires: virt-manager-data = %{version}-%{release}
+Requires: virt-manager-license = %{version}-%{release}
+Requires: virt-manager-locales = %{version}-%{release}
+Requires: virt-manager-man = %{version}-%{release}
 Requires: ipaddr-python
 Requires: libosinfo
 Requires: libvirt-python
 Requires: libxml2-python
 Requires: osinfo-db-tools
+Requires: pygobject-python
 Requires: requests
+BuildRequires : buildreq-distutils3
 BuildRequires : glib-bin
 BuildRequires : intltool
 BuildRequires : ipaddr-python
 BuildRequires : libosinfo
 BuildRequires : libvirt-python
-BuildRequires : pbr
-BuildRequires : pip
 BuildRequires : pkgconfig(gtk+-3.0)
-BuildRequires : python3-dev
 BuildRequires : requests
-BuildRequires : setuptools
 Patch1: 0001-Replace-ConfigParser-with-configparser.patch
 Patch2: 0002-Wrap-keys-values-in-a-list.patch
 Patch3: 0003-Replace-ipaddr-module-with-ipaddress.patch
@@ -86,9 +84,9 @@ management API.
 %package bin
 Summary: bin components for the virt-manager package.
 Group: Binaries
-Requires: virt-manager-data
-Requires: virt-manager-license
-Requires: virt-manager-man
+Requires: virt-manager-data = %{version}-%{release}
+Requires: virt-manager-license = %{version}-%{release}
+Requires: virt-manager-man = %{version}-%{release}
 
 %description bin
 bin components for the virt-manager package.
@@ -177,15 +175,16 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1531171438
-find -name "*pyx" | xargs touch ||:
-python3 setup.py build -b py3
+export SOURCE_DATE_EPOCH=1548880443
+export MAKEFLAGS=%{?_smp_mflags}
+python3 setup.py build
 
 %install
+export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/share/doc/virt-manager
-cp COPYING %{buildroot}/usr/share/doc/virt-manager/COPYING
-python3 -tt setup.py build -b py3 install --root=%{buildroot}
+mkdir -p %{buildroot}/usr/share/package-licenses/virt-manager
+cp COPYING %{buildroot}/usr/share/package-licenses/virt-manager/COPYING
+python3 -tt setup.py build  install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
 echo ----[ mark ]----
@@ -388,11 +387,11 @@ echo ----[ mark ]----
 /usr/share/virt-manager/virtinst/xmlnsqemu.py
 
 %files license
-%defattr(-,root,root,-)
-/usr/share/doc/virt-manager/COPYING
+%defattr(0644,root,root,0755)
+/usr/share/package-licenses/virt-manager/COPYING
 
 %files man
-%defattr(-,root,root,-)
+%defattr(0644,root,root,0755)
 /usr/share/man/man1/virt-clone.1
 /usr/share/man/man1/virt-convert.1
 /usr/share/man/man1/virt-install.1
