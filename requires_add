@@ -7,3 +7,4 @@ libxml2-python
 osinfo-db-tools
 pygobject-python
 requests
+libvirt-glib

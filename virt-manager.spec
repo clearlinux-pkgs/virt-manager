@@ -4,10 +4,10 @@
 #
 Name     : virt-manager
 Version  : 1.5.1
-Release  : 20
+Release  : 21
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-1.5.1.tar.gz
-Summary  : Desktop tool for managing virtual machines via libvirt
+Summary  : Desktop user interface for managing virtual machines
 Group    : Development/Tools
 License  : GPL-2.0 GPL-2.0+
 Requires: virt-manager-bin = %{version}-%{release}
@@ -17,6 +17,7 @@ Requires: virt-manager-locales = %{version}-%{release}
 Requires: virt-manager-man = %{version}-%{release}
 Requires: ipaddr-python
 Requires: libosinfo
+Requires: libvirt-glib
 Requires: libvirt-python
 Requires: libxml2-python
 Requires: osinfo-db-tools
@@ -86,7 +87,6 @@ Summary: bin components for the virt-manager package.
 Group: Binaries
 Requires: virt-manager-data = %{version}-%{release}
 Requires: virt-manager-license = %{version}-%{release}
-Requires: virt-manager-man = %{version}-%{release}
 
 %description bin
 bin components for the virt-manager package.
@@ -175,7 +175,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1548880443
+export SOURCE_DATE_EPOCH=1553966149
 export MAKEFLAGS=%{?_smp_mflags}
 python3 setup.py build
 
