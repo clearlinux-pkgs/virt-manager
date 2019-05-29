@@ -1,4 +1,4 @@
-From 60ee4e205290107f8f068322473dbd924aa703ec Mon Sep 17 00:00:00 2001
+From 3f3e6bec92c29575e97e80ef295e5dd71b22a785 Mon Sep 17 00:00:00 2001
 From: Jose Lamego <jose.a.lamego@intel.com>
 Date: Fri, 27 Apr 2018 10:00:54 -0500
 Subject: [PATCH] use iso-info command
@@ -9,35 +9,44 @@ not found.
 This change uses iso-info command instead.
 
 Signed-off-by: Jose Lamego <jose.a.lamego@intel.com>
+
+---
+Rebased patch for update to 2.1.0
+
+Signed-off-by: Simental Magana, Marcos <marcos.simental.magana@intel.com>
 ---
  tests/clitest.py       |  2 +-
- virtinst/urlfetcher.py | 12 ++++++------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ virtinst/urlfetcher.py | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/tests/clitest.py b/tests/clitest.py
-index 18513597..31eb0b63 100644
+index 504b487..38b0862 100644
 --- a/tests/clitest.py
 +++ b/tests/clitest.py
-@@ -801,7 +801,7 @@ c.add_compare("--arch s390x --machine s390-ccw-virtio --connect %(URI-KVM-S390X-
- c.add_compare("--connect %(URI-KVM-SESSION)s --disk size=8 --os-variant fedora21 --cdrom %(EXISTIMG1)s", "kvm-session-defaults")
+@@ -29,7 +29,7 @@ os.environ["DISPLAY"] = ":3.4"
+ TMP_IMAGE_DIR = "/tmp/__virtinst_cli_"
+ XMLDIR = "tests/cli-test-xml"
+ OLD_OSINFO = utils.has_old_osinfo()
+-HAS_ISOINFO = find_executable("isoinfo")
++HAS_ISOINFO = find_executable("iso-info")
  
- # misc KVM config tests
--c.add_compare("--disk none --location %(EXISTIMG3)s --nonetworks", "location-iso", skip_check=not find_executable("isoinfo"))  # Using --location iso mounting
-+c.add_compare("--disk none --location %(EXISTIMG3)s --nonetworks", "location-iso", skip_check=not find_executable("iso-info"))  # Using --location iso mounting
- c.add_compare("--disk none --location nfs:example.com/fake --nonetworks", "location-nfs")  # Using --location nfs
- c.add_compare("--disk %(EXISTIMG1)s --pxe --os-variant rhel6.4", "kvm-rhel6")  # RHEL6 defaults
- c.add_compare("--disk %(EXISTIMG1)s --pxe --os-variant rhel7.0", "kvm-rhel7")  # RHEL7 defaults
+ # Images that will be created by virt-install/virt-clone, and removed before
+ # each run
 diff --git a/virtinst/urlfetcher.py b/virtinst/urlfetcher.py
-index d765e135..bc94698e 100644
+index 94a8aa2..f653240 100644
 --- a/virtinst/urlfetcher.py
 +++ b/virtinst/urlfetcher.py
-@@ -338,23 +338,23 @@ class _ISOURLFetcher(_URLFetcher):
+@@ -298,26 +298,26 @@ class _ISOURLFetcher(_URLFetcher):
  
      def _grabber(self, url):
          """
 -        Use isoinfo to grab the file
 +        Use iso-info to grab the file
          """
+         if not self._hasFile(url):
+-            raise RuntimeError("isoinfo didn't find file=%s" % url)
++            raise RuntimeError("iso-info didn't find file=%s" % url)
+ 
 -        cmd = ["isoinfo", "-J", "-i", self.location, "-x", url]
 +        cmd = ["iso-info", "-i", self.location, "-x", url]
  
@@ -58,9 +67,9 @@ index d765e135..bc94698e 100644
  
 -            logging.debug("Running isoinfo: %s", cmd)
 +            logging.debug("Running iso-info: %s", cmd)
-             output = subprocess.check_output(cmd)
+             output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
  
              self._cache_file_list = output.splitlines(False)
 -- 
-2.17.0
+2.21.0
 
