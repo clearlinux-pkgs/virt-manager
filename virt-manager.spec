@@ -4,10 +4,10 @@
 #
 Name     : virt-manager
 Version  : 2.1.0
-Release  : 24
+Release  : 25
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-2.1.0.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-2.1.0.tar.gz
-Summary  : Desktop user interface for managing virtual machines
+Summary  : Desktop tool for managing virtual machines via libvirt
 Group    : Development/Tools
 License  : GPL-2.0 GPL-2.0+
 Requires: virt-manager-bin = %{version}-%{release}
@@ -16,6 +16,7 @@ Requires: virt-manager-license = %{version}-%{release}
 Requires: virt-manager-locales = %{version}-%{release}
 Requires: virt-manager-man = %{version}-%{release}
 Requires: ipaddr-python
+Requires: libcdio
 Requires: libosinfo
 Requires: libvirt-glib
 Requires: libvirt-python
@@ -27,12 +28,14 @@ BuildRequires : buildreq-distutils3
 BuildRequires : glib-bin
 BuildRequires : intltool
 BuildRequires : ipaddr-python
+BuildRequires : libcdio
 BuildRequires : libosinfo
 BuildRequires : libvirt-glib
 BuildRequires : libvirt-python
 BuildRequires : osinfo-db-tools
 BuildRequires : pkgconfig(gtk+-3.0)
 BuildRequires : requests
+Patch1: 0001-use-iso-info-command.patch
 
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
@@ -85,13 +88,15 @@ man components for the virt-manager package.
 
 %prep
 %setup -q -n virt-manager-2.1.0
+%patch1 -p1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1558143455
+export SOURCE_DATE_EPOCH=1559168447
+export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
 export NM=gcc-nm
