@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 2.1.0
-Release  : 23
+Release  : 24
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-2.1.0.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-2.1.0.tar.gz
 Summary  : Desktop user interface for managing virtual machines
