@@ -6,3 +6,4 @@ libvirt-python
 libosinfo
 intltool
 requests
+libxml2-python
