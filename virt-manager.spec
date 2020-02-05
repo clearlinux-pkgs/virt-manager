@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 2.2.1
-Release  : 26
+Release  : 27
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-2.2.1.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-2.2.1.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -89,13 +89,14 @@ man components for the virt-manager package.
 
 %prep
 %setup -q -n virt-manager-2.2.1
+cd %{_builddir}/virt-manager-2.2.1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1562778623
+export SOURCE_DATE_EPOCH=1580932093
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -116,12 +117,15 @@ python3 setup.py test || true
 export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/virt-manager
-cp COPYING %{buildroot}/usr/share/package-licenses/virt-manager/COPYING
+cp %{_builddir}/virt-manager-2.2.1/COPYING %{buildroot}/usr/share/package-licenses/virt-manager/06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 python3 -tt setup.py build  install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
 echo ----[ mark ]----
 %find_lang virt-manager
+## Remove excluded files
+rm -f %{buildroot}/usr/share/icons/hicolor/icon-theme.cache
+rm -f %{buildroot}/usr/share/glib-2.0/schemas/gschemas.compiled
 
 %files
 %defattr(-,root,root,-)
@@ -136,8 +140,6 @@ echo ----[ mark ]----
 
 %files data
 %defattr(-,root,root,-)
-%exclude /usr/share/glib-2.0/schemas/gschemas.compiled
-%exclude /usr/share/icons/hicolor/icon-theme.cache
 /usr/share/appdata/virt-manager.appdata.xml
 /usr/share/applications/virt-manager.desktop
 /usr/share/bash-completion/completions/virt-clone
@@ -349,7 +351,7 @@ echo ----[ mark ]----
 
 %files license
 %defattr(0644,root,root,0755)
-/usr/share/package-licenses/virt-manager/COPYING
+/usr/share/package-licenses/virt-manager/06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 
 %files man
 %defattr(0644,root,root,0755)
