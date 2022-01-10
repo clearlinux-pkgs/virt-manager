@@ -7,5 +7,5 @@ libvirt-python
 libxml2-python
 osinfo-db-tools
 pygobject-python
-requests
+pypi(requests)
 libvirt-glib

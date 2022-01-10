@@ -5,6 +5,6 @@ ipaddr-python
 libvirt-python
 libosinfo
 intltool
-requests
+pypi(requests)
 libxml2-python
-docutils
+pypi(docutils)
