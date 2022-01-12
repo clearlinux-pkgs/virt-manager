@@ -1,10 +1,10 @@
 # This file contains additional build requirements that did not get
 # picked up automatically. One name per line, no whitespace.
 glib-bin
-ipaddr-python
-libvirt-python
-libosinfo
 intltool
+ipaddr-python3
+libosinfo
+libvirt-python
+libxml2-python3
 pypi(requests)
-libxml2-python
-pypi(docutils)
+pypi-docutils

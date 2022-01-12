@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 3.2.0
-Release  : 33
+Release  : 34
 URL      : https://github.com/virt-manager/virt-manager/archive/refs/tags/v3.2.0.tar.gz
 Source0  : https://github.com/virt-manager/virt-manager/archive/refs/tags/v3.2.0.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
@@ -23,20 +23,17 @@ Requires: libvirt-python
 Requires: libxml2-python
 Requires: osinfo-db-tools
 Requires: pygobject-python
-Requires: requests
+Requires: pypi(requests)
 BuildRequires : buildreq-distutils3
-BuildRequires : docutils
 BuildRequires : glib-bin
 BuildRequires : intltool
-BuildRequires : ipaddr-python
-BuildRequires : libcdio
+BuildRequires : ipaddr-python3
 BuildRequires : libosinfo
-BuildRequires : libvirt-glib
 BuildRequires : libvirt-python
-BuildRequires : libxml2-python
-BuildRequires : osinfo-db-tools
+BuildRequires : libxml2-python3
 BuildRequires : pkgconfig(gtk+-3.0)
-BuildRequires : requests
+BuildRequires : pypi(requests)
+BuildRequires : pypi-docutils
 
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
@@ -96,7 +93,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1631570078
+export SOURCE_DATE_EPOCH=1641948920
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -124,8 +121,8 @@ cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
 echo ----[ mark ]----
 %find_lang virt-manager
 ## Remove excluded files
-rm -f %{buildroot}/usr/share/icons/hicolor/icon-theme.cache
-rm -f %{buildroot}/usr/share/glib-2.0/schemas/gschemas.compiled
+rm -f %{buildroot}*/usr/share/icons/hicolor/icon-theme.cache
+rm -f %{buildroot}*/usr/share/glib-2.0/schemas/gschemas.compiled
 
 %files
 %defattr(-,root,root,-)
