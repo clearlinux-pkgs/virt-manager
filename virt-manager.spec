@@ -4,7 +4,7 @@
 #
 Name     : virt-manager
 Version  : 4.1.0
-Release  : 38
+Release  : 39
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-4.1.0.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-4.1.0.tar.gz
 Summary  : Desktop tool for managing virtual machines via libvirt
