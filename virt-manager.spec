@@ -7,7 +7,7 @@
 #
 Name     : virt-manager
 Version  : 4.1.0
-Release  : 41
+Release  : 42
 URL      : https://virt-manager.org/download/sources/virt-manager/virt-manager-4.1.0.tar.gz
 Source0  : https://virt-manager.org/download/sources/virt-manager/virt-manager-4.1.0.tar.gz
 Source1  : https://virt-manager.org/download/sources/virt-manager/virt-manager-4.1.0.tar.gz.asc
